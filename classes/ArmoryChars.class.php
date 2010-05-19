@@ -5,15 +5,15 @@
  * Link:		    http://creativecommons.org/licenses/by-nc-sa/3.0/
  * -----------------------------------------------------------------------
  * Began:       2007
- * Date:        $Date: 2009-06-21 21:22:18 +0200 (Sun, 21 Jun 2009) $
+ * Date:        $Date: 2010-05-04 23:09:27 +0200 (Tue, 04 May 2010) $
  * -----------------------------------------------------------------------
- * @author      $Author: wallenium $
+ * @author      $Author: Godmod $
  * @copyright   2008 Simon (Wallenium) Wallmann
  * @link        http://eqdkp-plus.com
  * @package     libraries:armory
- * @version     $Rev: 5091 $
+ * @version     $Rev: 7753 $
  * 
- * $Id: ArmoryChars.class.php 5091 2009-06-21 19:22:18Z wallenium $
+ * $Id: ArmoryChars.class.php 7753 2010-05-04 21:09:27Z Godmod $
  */
 
 
@@ -50,6 +50,31 @@ class ArmoryChars extends PHPArmory
 	}
 	
 	/**
+  * Download Achievement Information
+  * 
+  * @param $category Category name
+  * @param $user Character Name
+  * @param $realm Realm Name
+  * @param $loc Server Location (us/eu)
+  * @param $lang Language of output (en_us/de_de/fr_fr) 
+  * @param $parse Parsed Output (true) or XML (false)       
+  * @return bol
+  */
+	public function GetAchievementData($category, $user, $realm, $loc='us', $lang='en_us'){
+		$wowurl = $this->links[$loc].'character-achievements.xml?r='.$this->ConvertInput($realm).'&cn='.$this->ConvertInput($user).'&c='.$category;
+		if($parse == true){
+			$xml = simplexml_load_string($this->read_url($wowurl, $lang));
+			if(is_object($xml)){   
+				return $xml;
+			}else{
+				return 0;    
+			}
+		}else{
+			return $this->read_url($wowurl, $lang);
+		}
+	}
+	
+	/**
   * Download the Guild List of Armory
   * 
   * @param $guild Guildname on Realm
@@ -61,12 +86,12 @@ class ArmoryChars extends PHPArmory
   * @param $parse Parsed Output (true) or XML (false)  
   * @return bool
   */
-	public function GetGuildMembers($guild, $realm, $loc='us', $minLevel, $clsFilter, $lang='en_us', $parse=true) {
+	public function GetGuildMembers($guild, $realm, $loc='us', $minLevel, $clsFilter, $rnkFilter, $lang='en_us', $parse=true) {
     $wowurl = $this->links[$loc]."guild-info.xml?r=".$this->ConvertInput($realm)."&n=".$this->ConvertInput($guild)."&p=1";
 		$xmldata = $this->read_url($wowurl, $lang);
 		if($parse == true){
 			$xml = simplexml_load_string($xmldata);
-			return $this->getCharacterList($xml, $minLevel, $clsFilter);
+			return $this->getCharacterList($xml, $minLevel, $clsFilter, $rnkFilter);
 		}else{
 			return $xmldata;
 		}
@@ -80,30 +105,35 @@ class ArmoryChars extends PHPArmory
   * @param $class List users of that Class only
   * @return bol List Array
   */
-	private function getCharacterList($xml, $minLevel, $class) {
+	private function getCharacterList($xml, $minLevel, $class, $rank) {
 		$cList = array();
 		if(is_object($xml)){
 			$characters = $xml->xpath("/page/guildInfo/guild/members/character");
 			if(sizeof($characters) == 0) {
 				echo "<font style='color: #f00; font-weight: bold;'>Warning! No characters found!</font><p />";
 			}else{
+				$rank['sort'] = ($rank['sort']) ? $rank['sort'] : 1;
+				// Load char by char
 	  		foreach($characters as $character) {
 	  			$attribs = $character->attributes();
 	        // end of encoding problem fix
 	  			if((int)($attribs["level"]) >= $minLevel) {
 	  				if (!$class || $class == $attribs["classId"]) {
-	  					$cList[] = array(
-	  						'name'						=> $attribs['name'],
-	  						'level'						=> $attribs['level'],
-	  						'rank'						=> $attribs['rank'],
-	  						'gender'					=> $attribs['genderId'],
-	  						'raceid'					=> $attribs['raceId'],
-	  						'classid'					=> $attribs['classId'],
-	  						'eqdkp_classid'		=> $this->ConvertID($attribs['classId'], 'int', 'classes'),
-	  						'eqdkp_raceid'		=> $this->ConvertID($attribs['raceId'], 'int', 'races'),
-	  					);
-	  				}
-	  			}
+	  					if(!$rank['value'] || ($rank['sort'] == '2' && $rank['value'] == $attribs['rank'])
+	  							or ($rank['sort'] == '1' && $rank['value'] >= $attribs['rank'])){
+		  					$cList[] = array(
+		  						'name'						=> $attribs['name'],
+		  						'level'						=> $attribs['level'],
+		  						'rank'						=> $attribs['rank'],
+		  						'gender'					=> $attribs['genderId'],
+		  						'raceid'					=> $attribs['raceId'],
+		  						'classid'					=> $attribs['classId'],
+		  						'eqdkp_classid'		=> $this->ConvertID($attribs['classId'], 'int', 'classes'),
+		  						'eqdkp_raceid'		=> $this->ConvertID($attribs['raceId'], 'int', 'races'),
+		  					);
+	  					} // end rank filter
+	  				} // end class filter
+	  			} // end level filter
 	  		} // end of foreach
 	  	} // end of check
 			return $cList;
@@ -157,7 +187,7 @@ class ArmoryChars extends PHPArmory
   */
 	private function getCharacterIcon($loc, $level, $genderid, $raceid, $classid){
 		$dir = 'wow'.($level < '60' ? '-default' : ($level < '80' ? '-70' : '-80'));
-    return $this->links[$loc]."images/portraits/$dir/{$genderid}-{$raceid}-{$classid}.gif";
+    return $this->links[$loc]."_images/portraits/$dir/{$genderid}-{$raceid}-{$classid}.gif";
    }
   
   /**
@@ -186,16 +216,16 @@ class ArmoryChars extends PHPArmory
 	public function BuildMemberArray($chardata, $loc='us'){
 		$dataarray = $memberarray = array();
 		$myerror = $this->CheckIfChar($chardata);
-		
+
 		if(!$myerror){
   		foreach($chardata->character->attributes() as $a => $b) {
   		// This is an ugly workaround for an encoding error in the armory
-  		  if ( substr($b ,0,1) == 'J' && substr($b ,-3) == 'ger' ) {
-          $b = utf8_encode('Jäger');
+  		  /*if ( substr($b ,0,1) == 'J' && substr($b ,-3) == 'ger' ) {
+          $b = 'Jäger';
         }
         if ( substr($b ,0,1) == 'M' && substr($b ,-6) == 'nnlich' ) {
-          $b = utf8_encode('Männlich');
-        }
+          $b = 'Männlich';
+        }*/
         // end of encoding problem fix
       	$dataarray[strtolower($a)] = $b;
 

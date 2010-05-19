@@ -5,15 +5,15 @@
  * Link:		    http://creativecommons.org/licenses/by-nc-sa/3.0/
  * -----------------------------------------------------------------------
  * Began:       2007
- * Date:        $Date: 2009-06-04 00:54:08 +0200 (Thu, 04 Jun 2009) $
+ * Date:        $Date: 2010-05-04 03:01:06 +0200 (Tue, 04 May 2010) $
  * -----------------------------------------------------------------------
  * @author      $Author: wallenium $
  * @copyright   2008 Simon (Wallenium) Wallmann
  * @link        http://eqdkp-plus.com
  * @package     libraries:armory
- * @version     $Rev: 5027 $
+ * @version     $Rev: 7724 $
  * 
- * $Id: armory.convert.php 5027 2009-06-03 22:54:08Z wallenium $
+ * $Id: armory.convert.php 7724 2010-05-04 01:01:06Z wallenium $
  */
 
 $ac_trans = array(
@@ -45,26 +45,5 @@ $ac_trans = array(
       '0'   => 'Male',
       '1' 	=> 'Female',
   ),
-
-  'months' => array(
-  	// german
-    'de_de' => array(
-      'Januar'        => 'January',
-      'Februar'       => 'February',
-      'März'          => 'March',
-      'MÃ¤rz'         => 'March',
-      'April'         => 'April',
-      'Mai'           => 'May',
-      'Juni'          => 'June',
-      'Juli'          => 'July',
-      'August'        => 'August',
-      'September'     => 'September',
-      'Oktober'       => 'October',
-      'November'      => 'Noveber',
-      'Dezember'      => 'December',
-    ),
-    'fr_fr' => array(
-    ),
-  )
 );
 ?>

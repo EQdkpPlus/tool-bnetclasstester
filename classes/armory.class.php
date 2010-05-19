@@ -5,21 +5,21 @@
  * Link:		    http://creativecommons.org/licenses/by-nc-sa/3.0/
  * -----------------------------------------------------------------------
  * Began:       2007
- * Date:        $Date: 2009-08-14 01:48:55 +0200 (Fri, 14 Aug 2009) $
+ * Date:        $Date: 2010-05-04 03:01:06 +0200 (Tue, 04 May 2010) $
  * -----------------------------------------------------------------------
  * @author      $Author: wallenium $
  * @copyright   2008 Simon (Wallenium) Wallmann
  * @link        http://eqdkp-plus.com
  * @package     libraries:armory
- * @version     $Rev: 5645 $
+ * @version     $Rev: 7724 $
  * 
- * $Id: armory.class.php 5645 2009-08-13 23:48:55Z wallenium $
+ * $Id: armory.class.php 7724 2010-05-04 01:01:06Z wallenium $
  */
 
 class PHPArmory
 {
-	var $version 	= '3.2.0';
-	var $build		= '10082009a';
+	var $version 	= '4.0.0';
+	var $build		= '19052010a';
 	
 	private $xml_timeout = 20;  // seconds to pass for timeout
 	private $user_agent  = 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.2) Gecko/20070220 Firefox/2.0.0.2';
@@ -41,9 +41,9 @@ class PHPArmory
                             'de_de' => 'Deutsch',
                             'en_gb' => 'English (EU)',
                             'en_us' => 'English (US)',
-                            'es_mx' => 'Español (AL)',
-                            'es_es' => 'Español (EU)',
-                            'fr_fr' => 'Français',
+                            'es_mx' => 'EspaÃ±ol (AL)',
+                            'es_es' => 'EspaÃ±ol (EU)',
+                            'fr_fr' => 'FranÃ§ais',
                             'ru_ru' => 'Russian',
                             'ko_kr' => 'Korean',
                           );
@@ -52,14 +52,12 @@ class PHPArmory
 	/**
   * Initialize the Class
   * 
-  * @param $utf8test  Some Specialchars to test the Codeset
   * @param $loadme    Whcih modules to load: items, chars
   * @param $lang      Which language to import
   * @return bool
   */
-	function __construct($utf8test, $lang='en_en'){
+	function __construct($lang='en_en'){
 	 global $ac_trans;
-		$this->stringIsUTF8 = ($this->isUTF8($utf8test) == 1) ? true : false;
 		$this->armoryLang   = $lang;
 		require('armory.convert.php');
 		$this->convert      = $ac_trans;
@@ -148,11 +146,7 @@ class PHPArmory
   * @return string/int output
   */
 	public function ValueOrNull($input, $type='int'){
-    if($type == 'int'){
-    	return ($input) ? $input : 0;
-    }else{
-    	return ($input) ? $input : '';
-    }
+    return ($input) ? $input : (($type == 'int') ? 0 : '');
   }
   
   /**
@@ -182,10 +176,7 @@ class PHPArmory
   * @return string output
   */
 	 public function ConvertInput($input){
-    global $user;
-	 	//$user 	= ($this->isUTF8) ? stripslashes(rawurlencode($user)) : stripslashes(rawurlencode(utf8_encode($user)));
-		$out	= ($this->stringIsUTF8) ? stripslashes(rawurlencode($input)) : stripslashes(rawurlencode(mb_convert_encoding($input,"UTF-8",$user->lang['ENCODING'])));
-    return $out;
+    return stripslashes(rawurlencode($input));
 	}
 	
 	/**
@@ -211,14 +202,15 @@ class PHPArmory
 	public function Date2Timestamp($armdate){
 	 global $ac_trans;
 		$tmpdate = explode(" ", trim($armdate));
-
-    $transmonthname = ($this->armoryLang && $this->armoryLang != 'en_en') ? $ac_trans['months'][$this->armoryLang][$this->UTF8tify($tmpdate[1])] : '';
-    $tmpdate[1] = ($transmonthname) ? $transmonthname : $tmpdate[1];
+		
+		// not sure if we need it any longerâ€¦
+    //$transmonthname = ($this->armoryLang && $this->armoryLang != 'en_en') ? $ac_trans['months'][$this->armoryLang][$tmpdate[1]] : '';
+    //$tmpdate[1] = ($transmonthname) ? $transmonthname : $tmpdate[1];
     return strtotime($tmpdate[0].' '.$tmpdate[1].' '.$tmpdate[2]);
   }
 	
 	/**
-  * Build Character Detail Array
+  * Fetch the Data from URL
   * 
   * @param $url URL to Download
   * @return xml
@@ -292,75 +284,10 @@ class PHPArmory
   * 
   * @param	$name		name of the field
   * @param	$input	Value of the field
-  * @return bool UTF8 encoded string
+  * @return input field
   */
 	public function genHiddenInput($name, $input){
-		return "<input name='".$name."' value='".$input."' type='hidden'>\n";
+		return "<input name='".$name."' value=\"".$input."\" type='hidden'>\n";
 	}
-	
-	/**
-  * Returns <kbd>true</kbd> if the string or array of string is encoded in UTF8.
-  *
-  * Example of use. If you want to know if a file is saved in UTF8 format :
-  * <code> $array = file('one file.txt');
-  * $isUTF8 = isUTF8($array);
-  * if (!$isUTF8) --> we need to apply utf8_encode() to be in UTF8
-  * else --> we are in UTF8 :)
-  * @param mixed A string, or an array from a file() function.
-  * @return boolean
-  */
-	 protected function isUTF8($string){
-    if (is_array($string)){
-    	$enc = implode('', $string);
-    	return @!((ord($enc[0]) != 239) && (ord($enc[1]) != 187) && (ord($enc[2]) != 191));
-    }else{
-    	return (utf8_encode(utf8_decode($string)) == $string);
-    }   
-	}
-	
-	/**
-  * Check if the String is UTF8 or not
-  * 
-  * @return bool
-  */
-	public function CheckUTF8(){
-		return $this->stringIsUTF8;
-	}
-	
-	/**
-  * Convert the String to UTF8 if needed
-  * 
-  * @param $string Input
-  * @return bool UTF8 encoded string
-  */
-	public function UTF8tify($string){
-    global $user;
-		if($this->stringIsUTF8 || !$this->XMLIsUTF8){
-			return $string;
-		}else{
-			return mb_convert_encoding($string,$user->lang['ENCODING'],"UTF-8");
-		}
-	}
-	
-	public function utf8_array_encode($input){
-    $return = array();
-    foreach ($input as $key => $val){
-      if( is_array($val) ){
-        $return[$key] = mb_convert_variables("UTF-8", $user->lang['ENCODING'], $val);
-      }else{
-        $return[$key] = mb_convert_encoding($val,"UTF-8",$user->lang['ENCODING']);
-      }
-    }
-    return $return;          
-  }
-  
-  public function utf8_array_decode($input){
-    $return = array();
-    foreach ($input as $key => $val){
-      $k = mb_convert_encoding($key,$user->lang['ENCODING'],"UTF-8");
-      $return[$k] = mb_convert_encoding($val,$user->lang['ENCODING'],"UTF-8");
-    }
-    return $return;          
-  }
 }
 ?>
