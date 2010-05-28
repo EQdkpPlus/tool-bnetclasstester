@@ -16,7 +16,7 @@
  * $Id: character.php 5090 2009-06-21 19:21:41Z wallenium $
  */
 
-error_reporting(E_ALL ^ E_NOTICE);
+define('EQDKP_INC', true);
 
 // Loas phpinfo()
 if($_GET['info'] == 'true'){

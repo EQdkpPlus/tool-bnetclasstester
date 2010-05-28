@@ -5,16 +5,20 @@
  * Link:		    http://creativecommons.org/licenses/by-nc-sa/3.0/
  * -----------------------------------------------------------------------
  * Began:       2007
- * Date:        $Date: 2010-05-04 03:01:06 +0200 (Tue, 04 May 2010) $
+ * Date:        $Date: 2010-05-28 17:47:22 +0200 (Fri, 28 May 2010) $
  * -----------------------------------------------------------------------
  * @author      $Author: wallenium $
  * @copyright   2008 Simon (Wallenium) Wallmann
  * @link        http://eqdkp-plus.com
  * @package     libraries:armory
- * @version     $Rev: 7724 $
+ * @version     $Rev: 7922 $
  * 
- * $Id: armory.class.php 7724 2010-05-04 01:01:06Z wallenium $
+ * $Id: armory.class.php 7922 2010-05-28 15:47:22Z wallenium $
  */
+
+if ( !defined('EQDKP_INC') ){
+	header('HTTP/1.0 404 Not Found');exit;
+}
 
 class PHPArmory
 {
@@ -202,10 +206,6 @@ class PHPArmory
 	public function Date2Timestamp($armdate){
 	 global $ac_trans;
 		$tmpdate = explode(" ", trim($armdate));
-		
-		// not sure if we need it any longer…
-    //$transmonthname = ($this->armoryLang && $this->armoryLang != 'en_en') ? $ac_trans['months'][$this->armoryLang][$tmpdate[1]] : '';
-    //$tmpdate[1] = ($transmonthname) ? $transmonthname : $tmpdate[1];
     return strtotime($tmpdate[0].' '.$tmpdate[1].' '.$tmpdate[2]);
   }
 	
@@ -216,67 +216,11 @@ class PHPArmory
   * @return xml
   */
 	 protected function read_url($url, $lang=''){
-	   if($lang){
-      $this->armoryLang = $lang;
-     }
-	 // Try cURL first. If that isnt available, check if we're allowed to
-	 // use fopen on URLs.  If that doesn't work, just die.
-  	if (function_exists('curl_init')){
-  		$curl = @curl_init($url);
-  		$cookie = "cookieLangId=".$this->armoryLang.";";
-  
-  		@curl_setopt($curl, CURLOPT_COOKIE, $cookie);
-  		@curl_setopt($curl, CURLOPT_USERAGENT, $this->user_agent);
-  		@curl_setopt($curl, CURLOPT_TIMEOUT, $this->xml_timeout);
-  		if (!(@ini_get("safe_mode") || @ini_get("open_basedir"))) {
-      	@curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
-      }
-  		@curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-
-  		$xml_data = @curl_exec($curl);
-  		curl_close($curl);
-  	}elseif (ini_get('allow_url_fopen') == 1 && function_exists('ini_set')){
-  	   @ini_set('user_agent', $this->user_agent);  // set the useragent first. if not, you'll get the source....
-  	   // its a bit tricky to get the cookie to work: http://www.testticker.de/tipps/article20060414003.aspx
-       $cheader   = array("http" => array ("header" => "Cookie: cookieLangId=".$this->armoryLang.";\r\n"));
-       $context   = @stream_context_create($cheader);
-  	   $xml_data  = @file_get_contents($url, false, $context);
-  	}else{
-      // Thanks to Aki Uusitalo
-  			$url_array = parse_url($url);
-  			$fp = fsockopen($url_array['host'], 80, $errno, $errstr, 30); 
-  			stream_set_timeout($fp, $this->xml_timeout);
-  			$cookie = "cookieLangId=".$this->armoryLang.";";
-  			if (!$fp){
-  				die("cURL isn't installed, 'allow_url_fopen' isn't set and socket opening failed. Socket failed because: <br /><br /> $errstr ($errno)");
-  			}else{
-  				$out  = "GET " .$url_array['path']."?".$url_array['query']." HTTP/1.0\r\n";
-  				$out .= "Host: ".$url_array['host']." \r\n";
-  				$out .= "User-Agent: ".$this->user_agent;
-  				$out .= "Connection: Close\r\n";
-  				$out .= "Cookie: ".$cookie."\r\n";
-  				$out .= "\r\n";
-  
-  				fwrite($fp, $out);
-  
-  				// Get rid of the HTTP headers
-  				while ($fp && !feof($fp)){
-  					$headerbuffer = fgets($fp, 1024);
-  					if (urlencode($headerbuffer) == "%0D%0A"){
-                      // We've reached the end of the headers
-  						break;
-  					}
-  				}
-  
-  				$xml_data = '';
-  				// Read the raw data from the socket in 1kb chunks
-  				while (!feof($fp)){
-  					$xml_data .= fgets($fp, 1024);
-  				}
-  				fclose($fp);
-  			}        
-  	}
-	return $xml_data;
+	 	global $urlreader;
+		if($lang){
+			$this->armoryLang = $lang;
+		}
+		return $urlreader->GetURL($url, $this->armoryLang);
 	}
 	
 	/**

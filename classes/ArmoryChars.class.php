@@ -5,23 +5,26 @@
  * Link:		    http://creativecommons.org/licenses/by-nc-sa/3.0/
  * -----------------------------------------------------------------------
  * Began:       2007
- * Date:        $Date: 2010-05-04 23:09:27 +0200 (Tue, 04 May 2010) $
+ * Date:        $Date: 2010-05-28 17:47:22 +0200 (Fri, 28 May 2010) $
  * -----------------------------------------------------------------------
- * @author      $Author: Godmod $
+ * @author      $Author: wallenium $
  * @copyright   2008 Simon (Wallenium) Wallmann
  * @link        http://eqdkp-plus.com
  * @package     libraries:armory
- * @version     $Rev: 7753 $
+ * @version     $Rev: 7922 $
  * 
- * $Id: ArmoryChars.class.php 7753 2010-05-04 21:09:27Z Godmod $
+ * $Id: ArmoryChars.class.php 7922 2010-05-28 15:47:22Z wallenium $
  */
 
+if ( !defined('EQDKP_INC') ){
+    header('HTTP/1.0 404 Not Found');exit;
+}
 
-// this class is PHP5 only... testing OOP
-if (version_compare(phpversion(), "5.0.0", "<")){
-  die('You need PHP5 or higher to use this class');
-} 
 require('armory.class.php');
+if(!is_object($urlreader)){
+	include('urlreader.class.php');
+	$urlreader	= new urlreader();
+}
 
 class ArmoryChars extends PHPArmory
 {

@@ -5,29 +5,29 @@
  * Link:		    http://creativecommons.org/licenses/by-nc-sa/3.0/
  * -----------------------------------------------------------------------
  * Began:       2007
- * Date:        $Date: 2010-05-04 03:01:06 +0200 (Tue, 04 May 2010) $
+ * Date:        $Date: 2010-05-28 17:47:22 +0200 (Fri, 28 May 2010) $
  * -----------------------------------------------------------------------
  * @author      $Author: wallenium $
  * @copyright   2008 Simon (Wallenium) Wallmann
  * @link        http://eqdkp-plus.com
  * @package     libraries:armory
- * @version     $Rev: 7724 $
+ * @version     $Rev: 7922 $
  * 
- * $Id: armory.convert.php 7724 2010-05-04 01:01:06Z wallenium $
+ * $Id: armory.convert.php 7922 2010-05-28 15:47:22Z wallenium $
  */
 
 $ac_trans = array(
   'classes' => array(
-      1   => '12',	// warrior
-      2   => '13',	// paladin
-      3   => '4',		// hunter
-      4   => '2',		// rogue
+      1   => '10',	// warrior
+      2   => '5',		// paladin
+      3   => '3',		// hunter
+      4   => '7',		// rogue
       5   => '6',		// priest
-      6   => '20',	// DK
-      7   => '9',		// shaman
-      8   => '11',	// mage
-      9   => '10',	// warlock
-      11  => '7',		// druid
+      6   => '1',		// DK
+      7   => '8',		// shaman
+      8   => '4',		// mage
+      9   => '9',		// warlock
+      11  => '2',		// druid
   ),
   'races' => array(
       '1'   => 2,		// human
