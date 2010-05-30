@@ -1,10 +1,20 @@
 <?php
-/******************************
- * Armory Import Class Tester
- * (c) 2007 by Simon Wallmann
- * ---------------------------
- * $Id: $
- ******************************/
+ /*
+ * Project:     eqdkpPLUS Libraries: Armory Class Tester
+ * License:     Creative Commons - Attribution-Noncommercial-Share Alike 3.0 Unported
+ * Link:		    http://creativecommons.org/licenses/by-nc-sa/3.0/
+ * -----------------------------------------------------------------------
+ * Began:       2007
+ * Date:        $Date: 2010-05-30 17:48:36 +0200 (Sun, 30 May 2010) $
+ * -----------------------------------------------------------------------
+ * @author      $Author: wallenium $
+ * @copyright   2007 - 2010 Simon (Wallenium) Wallmann
+ * @link        http://eqdkp-plus.com
+ * @package     libraries:armory
+ * @version     $Rev: 7950 $
+ * 
+ * $Id: ArmoryChars.class.php 7950 2010-05-30 15:48:36Z wallenium $
+ */
 
 define('EQDKP_INC', true);
 
@@ -50,13 +60,18 @@ $output .= "<br>";
 	
 	//Load the armory stuff
 	$dataarry 			= $armory->GetGuildMembers($tmp_guild,$tmp_servername,$tmp_loc, $min_level, $cclass, $rrank ,$tmp_language);
-
+	$get_method			= ($urlreader->get_method()) ? $urlreader->get_method() : 'Cached';
+	$output .= 'Connection Method:  <span style="color:red;">'.$get_method.'</span><br/><br/><br/>';
+	
+	// Header
 	$output .= '<table width="400">';
-		$output .= '<tr><td width="200">Name</td>';
-		$output .= '<td width="50">Class ID</td>';
-		$output .= '<td width="150">Level</td>';
-		$output .= '<td width="150">Rank</td>';
-		$output .= '</tr>';
+	$output .= '<tr><td width="200">Name</td>';
+	$output .= '<td width="50">Class ID</td>';
+	$output .= '<td width="150">Level</td>';
+	$output .= '<td width="150">Rank</td>';
+	$output .= '</tr>';
+	
+	// get Members
 	foreach($dataarry as $chars){
 		$output .= "<tr>";
 		$output .= '<td width="200">'.$chars['name'].'</td>';

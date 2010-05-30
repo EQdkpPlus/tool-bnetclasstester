@@ -5,15 +5,15 @@
  * Link:		    http://creativecommons.org/licenses/by-nc-sa/3.0/
  * -----------------------------------------------------------------------
  * Began:       2007
- * Date:        $Date: 2010-05-29 12:25:07 +0200 (Sat, 29 May 2010) $
+ * Date:        $Date: 2010-05-30 19:47:35 +0200 (Sun, 30 May 2010) $
  * -----------------------------------------------------------------------
  * @author      $Author: wallenium $
  * @copyright   2008 Simon (Wallenium) Wallmann
  * @link        http://eqdkp-plus.com
  * @package     libraries:armory
- * @version     $Rev: 7929 $
+ * @version     $Rev: 7951 $
  * 
- * $Id: armory.class.php 7929 2010-05-29 10:25:07Z wallenium $
+ * $Id: armory.class.php 7951 2010-05-30 17:47:35Z wallenium $
  */
 
 if ( !defined('EQDKP_INC') ){
@@ -63,12 +63,13 @@ class PHPArmory
   * @return bool
   */
 	function __construct($lang='en_en'){
-	 global $ac_trans, $pcache, $xmltools;
+	 global $ac_trans, $pcache, $xmltools, $user;
 		$this->armoryLang   = $lang;
 		require('armory.convert.php');
 		$this->convert      = $ac_trans;
 		$this->pcache				= $pcache;
 		$this->xmlTools			= $xmltools;
+		$this->language			= $user->lang;
 	}
 	
 	/**
@@ -208,8 +209,10 @@ class PHPArmory
   * @return Timestamp
   */
 	public function Date2Timestamp($armdate){
-		$tmpdate = explode(" ", trim($armdate));
-    return strtotime(substr($tmpdate[2].'-'.$tmpdate[1].'-'.$tmpdate[0], 0, -1));
+		$tmpdate		= explode(" ", trim($armdate));
+		$datenames	= array_flip($this->language['time_monthnames']);
+		$datename		= ($datenames[$tmpdate[1]]) ? ($datenames[$tmpdate[1]]+1) : $tmpdate[1];
+    return strtotime(substr($tmpdate[2].'-'.$datename.'-'.$tmpdate[0], 0, -1));
   }
 	
 	/**

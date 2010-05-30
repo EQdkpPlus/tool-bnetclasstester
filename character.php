@@ -1,19 +1,19 @@
 <?php
  /*
- * Project:     eqdkpPLUS Libraries: Armory Class Construct
+ * Project:     eqdkpPLUS Libraries: Armory Class Tester
  * License:     Creative Commons - Attribution-Noncommercial-Share Alike 3.0 Unported
  * Link:		    http://creativecommons.org/licenses/by-nc-sa/3.0/
  * -----------------------------------------------------------------------
- * Began:       2008
- * Date:        $Date: 2009-06-21 21:21:41 +0200 (Sun, 21 Jun 2009) $
+ * Began:       2007
+ * Date:        $Date: 2010-05-30 17:48:36 +0200 (Sun, 30 May 2010) $
  * -----------------------------------------------------------------------
  * @author      $Author: wallenium $
- * @copyright   2008 Simon (Wallenium) Wallmann
+ * @copyright   2007 - 2010 Simon (Wallenium) Wallmann
  * @link        http://eqdkp-plus.com
- * @package     libraries: armory construct tester
- * @version     $Rev: 5090 $
+ * @package     libraries:armory
+ * @version     $Rev: 7950 $
  * 
- * $Id: character.php 5090 2009-06-21 19:21:41Z wallenium $
+ * $Id: ArmoryChars.class.php 7950 2010-05-30 15:48:36Z wallenium $
  */
 
 define('EQDKP_INC', true);
@@ -34,6 +34,7 @@ $output = '';
 
 // init the required plus functions
 $eqdkp_root_path = '';
+$user->lang['time_monthnames'] = array('Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember');
 require_once('classes/plus/urlreader.class.php');
 require_once('classes/plus/xmlTools.class.php');
 require_once('classes/plus/core.functions.php');
@@ -148,7 +149,7 @@ if($testdata != 'no_char'){
 	
 	foreach($achvmnt_data['category'] as $myAchievements){
 		if($myAchievements['@attributes']['id'] != '81'){
-			$output .='<tr><td width="220">'.$myAchievements['c']['@attributes']['name'].'</td>
+			$output .='<tr><td width="220">'.$myAchievements['@attributes']['name'].'</td>
 		<td width="580">'.$myAchievements['c']['@attributes']['earned'].'/'.$myAchievements['c']['@attributes']['total'].'</td></tr>';
 		}
 	}

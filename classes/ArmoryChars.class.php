@@ -5,15 +5,15 @@
  * Link:		    http://creativecommons.org/licenses/by-nc-sa/3.0/
  * -----------------------------------------------------------------------
  * Began:       2007
- * Date:        $Date: 2010-05-29 12:25:07 +0200 (Sat, 29 May 2010) $
+ * Date:        $Date: 2010-05-30 17:48:36 +0200 (Sun, 30 May 2010) $
  * -----------------------------------------------------------------------
  * @author      $Author: wallenium $
  * @copyright   2008 Simon (Wallenium) Wallmann
  * @link        http://eqdkp-plus.com
  * @package     libraries:armory
- * @version     $Rev: 7929 $
+ * @version     $Rev: 7950 $
  * 
- * $Id: ArmoryChars.class.php 7929 2010-05-29 10:25:07Z wallenium $
+ * $Id: ArmoryChars.class.php 7950 2010-05-30 15:48:36Z wallenium $
  */
 
 if ( !defined('EQDKP_INC') ){
@@ -36,20 +36,19 @@ class ArmoryChars extends PHPArmory
   */
 	public function GetCharacterData($user, $realm, $loc='us', $lang='en_us', $force=false, $parse=true){
 	  $wowurl = $this->links[$loc].'character-sheet.xml?r='.$this->ConvertInput($realm).'&n='.$this->ConvertInput($user);
+		if(!$lxml	= $this->get_CachedXML($user.$realm, $force)){
+			$lxml	= $this->read_url($wowurl, $lang);
+			$this->CacheXML($lxml, $user.$realm);
+		}
 		if($parse == true){
-			if(!$lxml	= $this->get_CachedXML($user.$realm, $force)){
-				$lxml	= $this->read_url($wowurl, $lang);
-				$this->CacheXML($lxml, $user.$realm);
-			}
 			$xml 	= simplexml_load_string($lxml);
 			if(is_object($xml)){
-				
 				return $xml->xpath("/page/characterInfo");
 			}else{
 				return 0;	
 			}
 		}else{
-			return $this->read_url($wowurl, $lang);
+			return $lxml;
 		}
 	}
 	
@@ -66,15 +65,19 @@ class ArmoryChars extends PHPArmory
   */
 	public function GetAchievementData($category, $user, $realm, $loc='us', $lang='en_us'){
 		$wowurl = $this->links[$loc].'character-achievements.xml?r='.$this->ConvertInput($realm).'&cn='.$this->ConvertInput($user).'&c='.$category;
+		if(!$xmldata = $this->get_CachedXML('achievement_'.$user.$realm, $force)){
+			$xmldata	= $this->read_url($wowurl, $lang);
+			$this->CacheXML($xmldata, 'achievement_'.$user.$realm);
+		}
 		if($parse == true){
-			$xml = simplexml_load_string($this->read_url($wowurl, $lang));
+			$xml = simplexml_load_string($xmldata);
 			if(is_object($xml)){   
 				return $xml;
 			}else{
 				return 0;    
 			}
 		}else{
-			return $this->read_url($wowurl, $lang);
+			return $xmldata;
 		}
 	}
 	
@@ -90,9 +93,12 @@ class ArmoryChars extends PHPArmory
   * @param $parse Parsed Output (true) or XML (false)  
   * @return bool
   */
-	public function GetGuildMembers($guild, $realm, $loc='us', $minLevel, $clsFilter, $rnkFilter, $lang='en_us', $parse=true) {
+	public function GetGuildMembers($guild, $realm, $loc='us', $minLevel, $clsFilter, $rnkFilter, $lang='en_us', $force=false, $parse=true) {
     $wowurl = $this->links[$loc]."guild-info.xml?r=".$this->ConvertInput($realm)."&n=".$this->ConvertInput($guild)."&p=1";
-		$xmldata = $this->read_url($wowurl, $lang);
+		if(!$xmldata = $this->get_CachedXML($guild.$realm, $force)){
+			$xmldata	= $this->read_url($wowurl, $lang);
+			$this->CacheXML($xmldata, $guild.$realm);
+		}
 		if($parse == true){
 			$xml = simplexml_load_string($xmldata);
 			return $this->getCharacterList($xml, $minLevel, $clsFilter, $rnkFilter);
