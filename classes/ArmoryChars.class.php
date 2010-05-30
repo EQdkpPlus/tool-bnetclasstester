@@ -5,15 +5,15 @@
  * Link:		    http://creativecommons.org/licenses/by-nc-sa/3.0/
  * -----------------------------------------------------------------------
  * Began:       2007
- * Date:        $Date: 2010-05-28 17:47:22 +0200 (Fri, 28 May 2010) $
+ * Date:        $Date: 2010-05-29 12:25:07 +0200 (Sat, 29 May 2010) $
  * -----------------------------------------------------------------------
  * @author      $Author: wallenium $
  * @copyright   2008 Simon (Wallenium) Wallmann
  * @link        http://eqdkp-plus.com
  * @package     libraries:armory
- * @version     $Rev: 7922 $
+ * @version     $Rev: 7929 $
  * 
- * $Id: ArmoryChars.class.php 7922 2010-05-28 15:47:22Z wallenium $
+ * $Id: ArmoryChars.class.php 7929 2010-05-29 10:25:07Z wallenium $
  */
 
 if ( !defined('EQDKP_INC') ){
@@ -21,10 +21,6 @@ if ( !defined('EQDKP_INC') ){
 }
 
 require('armory.class.php');
-if(!is_object($urlreader)){
-	include('urlreader.class.php');
-	$urlreader	= new urlreader();
-}
 
 class ArmoryChars extends PHPArmory
 {
@@ -38,11 +34,16 @@ class ArmoryChars extends PHPArmory
   * @param $parse Parsed Output (true) or XML (false)       
   * @return bol
   */
-	public function GetCharacterData($user, $realm, $loc='us', $lang='en_us', $parse=true){
+	public function GetCharacterData($user, $realm, $loc='us', $lang='en_us', $force=false, $parse=true){
 	  $wowurl = $this->links[$loc].'character-sheet.xml?r='.$this->ConvertInput($realm).'&n='.$this->ConvertInput($user);
 		if($parse == true){
-			$xml = simplexml_load_string($this->read_url($wowurl, $lang));
+			if(!$lxml	= $this->get_CachedXML($user.$realm, $force)){
+				$lxml	= $this->read_url($wowurl, $lang);
+				$this->CacheXML($lxml, $user.$realm);
+			}
+			$xml 	= simplexml_load_string($lxml);
 			if(is_object($xml)){
+				
 				return $xml->xpath("/page/characterInfo");
 			}else{
 				return 0;	
@@ -222,14 +223,6 @@ class ArmoryChars extends PHPArmory
 
 		if(!$myerror){
   		foreach($chardata->character->attributes() as $a => $b) {
-  		// This is an ugly workaround for an encoding error in the armory
-  		  /*if ( substr($b ,0,1) == 'J' && substr($b ,-3) == 'ger' ) {
-          $b = 'Jäger';
-        }
-        if ( substr($b ,0,1) == 'M' && substr($b ,-6) == 'nnlich' ) {
-          $b = 'Männlich';
-        }*/
-        // end of encoding problem fix
       	$dataarray[strtolower($a)] = $b;
 
       	// Add the enflish ones:
@@ -266,6 +259,26 @@ class ArmoryChars extends PHPArmory
       	$dataarray[strtolower($a)] = $b;
   		}
   		
+  		// melee
+  		foreach($chardata->characterTab->melee as $a => $b) {
+      	$dataarray[strtolower($a)] = $b;
+  		}
+  		
+  		// ranged
+  		foreach($chardata->characterTab->ranged as $a => $b) {
+      	$dataarray[strtolower($a)] = $b;
+  		}
+  		
+  		// spell
+  		foreach($chardata->characterTab->spell as $a => $b) {
+      	$dataarray[strtolower($a)] = $b;
+  		}
+  		
+  		// defenses
+  		foreach($chardata->characterTab->defenses as $a => $b) {
+      	$dataarray[strtolower($a)] = $b;
+  		}
+  		
   		// Character Bars
   		foreach($chardata->characterTab->characterBars as $a => $b) {
       	$dataarray[strtolower($a)] = $b;
@@ -275,7 +288,7 @@ class ArmoryChars extends PHPArmory
   		foreach($chardata->characterTab->glyphs as $a => $b) {
       	$dataarray[strtolower($a)] = $b;
   		}
-  		
+ 
   		// Items
   		foreach($chardata->characterTab->items as $a => $b) {
       	$dataarray[strtolower($a)] = $b;

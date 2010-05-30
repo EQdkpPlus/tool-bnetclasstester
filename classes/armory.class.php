@@ -5,15 +5,15 @@
  * Link:		    http://creativecommons.org/licenses/by-nc-sa/3.0/
  * -----------------------------------------------------------------------
  * Began:       2007
- * Date:        $Date: 2010-05-28 17:47:22 +0200 (Fri, 28 May 2010) $
+ * Date:        $Date: 2010-05-29 12:25:07 +0200 (Sat, 29 May 2010) $
  * -----------------------------------------------------------------------
  * @author      $Author: wallenium $
  * @copyright   2008 Simon (Wallenium) Wallmann
  * @link        http://eqdkp-plus.com
  * @package     libraries:armory
- * @version     $Rev: 7922 $
+ * @version     $Rev: 7929 $
  * 
- * $Id: armory.class.php 7922 2010-05-28 15:47:22Z wallenium $
+ * $Id: armory.class.php 7929 2010-05-29 10:25:07Z wallenium $
  */
 
 if ( !defined('EQDKP_INC') ){
@@ -22,11 +22,13 @@ if ( !defined('EQDKP_INC') ){
 
 class PHPArmory
 {
-	var $version 	= '4.0.0';
-	var $build		= '19052010a';
+	public $version				= '4.0.0';
+	public $build					= '19052010a';
+	private $caching			= true;
+	private $cachingtime	= 12;		// in hours
+	private $xml_timeout	= 20;  	// seconds to pass for timeout
+	private $user_agent		= 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.2) Gecko/20070220 Firefox/2.0.0.2';
 	
-	private $xml_timeout = 20;  // seconds to pass for timeout
-	private $user_agent  = 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.2) Gecko/20070220 Firefox/2.0.0.2';
 	protected $links		 = array(
         										'eu'		=> 'http://eu.wowarmory.com/',
         										'us'		=> 'http://www.wowarmory.com/',
@@ -61,10 +63,11 @@ class PHPArmory
   * @return bool
   */
 	function __construct($lang='en_en'){
-	 global $ac_trans;
+	 global $ac_trans, $pcache;
 		$this->armoryLang   = $lang;
 		require('armory.convert.php');
 		$this->convert      = $ac_trans;
+		$this->pcache				= $pcache;
 	}
 	
 	/**
@@ -210,15 +213,51 @@ class PHPArmory
   }
 	
 	/**
+  * Write XML to Cache
+  * 
+  * @param	$xml			XML string
+  * @param	$filename	filename of the cache file
+  * @return --
+  */
+	protected function CacheXML($xml, $filename){
+		if($this->caching){
+			if(is_object($this->pcache)){
+				$this->pcache->putContent($xml, $this->pcache->FolderPath('armory/', 'eqdkp').md5($filename));
+			}else{
+				file_put_contents('data/'.md5($filename), $xml);
+			}
+		}
+	}
+	
+	/**
+  * get the cached xml if not outdated & available
+  * 
+  * @param	$filename	filename of the cache file
+  * @param	$force		force an update of the cached xml file
+  * @return --
+  */
+	protected function get_CachedXML($filename, $force=false){
+		if(!$this->caching){return '';}
+		$rfilename	= (is_object($this->pcache)) ? $this->pcache->FolderPath('armory/', 'eqdkp').md5($filename) : 'data/'.md5($filename);
+		$data_ctrl	= (!$force && (filectime($rfilename)+(3600*$this->cachingtime)) > time()) ? true : false;
+		return ($data_ctrl) ? @file_get_contents($rfilename) : false;
+	}
+	
+	/**
   * Fetch the Data from URL
   * 
   * @param $url URL to Download
   * @return xml
   */
 	 protected function read_url($url, $lang=''){
-	 	global $urlreader;
+	 	global $urlreader, $eqdkp_root_path;
 		if($lang){
 			$this->armoryLang = $lang;
+		}
+		if(!is_object($urlreader)){
+			$mpath = ($eqdkp_root_path) ? $eqdkp_root_path.'core/': '';
+			include($mpath.'urlreader.class.php');
+			$urlreader	= new urlreader();
 		}
 		return $urlreader->GetURL($url, $this->armoryLang);
 	}

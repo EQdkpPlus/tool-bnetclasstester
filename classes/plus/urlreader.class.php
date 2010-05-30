@@ -5,15 +5,15 @@
  * Link:				http://creativecommons.org/licenses/by-nc-sa/3.0/
  * -----------------------------------------------------------------------
  * Began:       11.01.2008
- * Date:        $Date: 2010-05-28 16:59:39 +0200 (Fri, 28 May 2010) $
+ * Date:        $Date: 2010-05-29 17:52:31 +0200 (Sat, 29 May 2010) $
  * -----------------------------------------------------------------------
  * @author      $Author: wallenium $
  * @copyright   2006-2010 EQdkp-Plus Developer Team
  * @link        http://eqdkp-plus.com
  * @package     eqdkp-plus
- * @version     $Rev: 7920 $
+ * @version     $Rev: 7936 $
  *
- * $Id: urlreader.class.php 7920 2010-05-28 14:59:39Z wallenium $
+ * $Id: urlreader.class.php 7936 2010-05-29 15:52:31Z wallenium $
  *
  * URL Reader Class initially written by Stefan "Corgan" Knaak
  * merged with import code of Armory Import library module by WalleniuM 
@@ -32,7 +32,8 @@ class urlreader
 																'url_check'	=> 5,			// Timeout for Url check
 															); 				
 	private $checkURL_first 	= false;									// Should we check the server first, bevor we try to get the url
-
+	private $fetch_method			= '';
+	
 	/**
 	 * Return the Data
 	 * Checks all given methods to get the date from the url
@@ -75,6 +76,10 @@ class urlreader
 		
 		return $ret_val;
 	}
+	
+	public function get_method(){
+		return $this->fetch_method;
+	}
 
 	/**
 	 * Try to get the data from the URL via the curl function
@@ -98,6 +103,7 @@ class urlreader
 			$getdata = @curl_exec($ch);
 			curl_close($ch);
 		}
+		$this->fetch_method = 'curl';
 		return $getdata;
 	}
 
@@ -129,7 +135,7 @@ class urlreader
       $context = @stream_context_create($opts);
 			$getdata = @file_get_contents($geturl, false, $context);
 		}
-
+		$this->fetch_method = 'file_gets';
 		return $getdata;
 	}
 	
@@ -173,7 +179,7 @@ class urlreader
 			}
 			fclose($fp);
 		}
-
+		$this->fetch_method = 'fopen';
 		return $getdata;
 	}
 	

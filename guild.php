@@ -21,6 +21,8 @@ $wow_language		= "de_de";
 $min_level			= 20;
 
 $output = '';
+require_once('classes/plus/urlreader.class.php');
+$urlreader    = new urlreader();
 include_once('classes/ArmoryChars.class.php');
 
 if(@$_GET['debug'] == 'true'){
