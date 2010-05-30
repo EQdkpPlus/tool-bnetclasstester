@@ -217,7 +217,27 @@ class ArmoryChars extends PHPArmory
   * @param $xml XML Input of Armory
   * @return bol List Array
   */
-	public function BuildMemberArray($chardata, $loc='us'){
+  public function BuildMemberArray($chardata, $loc='us'){
+  	$myerror			= $this->CheckIfChar($chardata);
+  	$dataarray	= array();
+  	
+  	if(!$myerror){
+	  	$dataarray = $this->xmlTools->simplexml2array($chardata);
+	  	
+	  	// Char Icon
+	  	$character_data = $dataarray['character']['@attributes'];
+	  	$dataarray['class_eqdkp']	= $this->ConvertID($character_data['classId'], 'int', 'classes');
+      $dataarray['race_eqdkp']	= $this->ConvertID($character_data['raceId'], 'int', 'races');
+	  	if($character_data['level'] && $character_data['classId'] && $character_data['genderId'] && $character_data['raceId']){
+	  		$dataarray['ac_charicon'] = $this->getCharacterIcon($loc, $character_data['level'], $character_data['genderId'], $character_data['raceId'], $character_data['classId']);
+	  	}
+	  	return $dataarray;
+  	}else{
+      return $myerror;
+    }
+  }
+  
+	public function BuildMemberObject($chardata, $loc='us'){
 		$dataarray = $memberarray = array();
 		$myerror = $this->CheckIfChar($chardata);
 

@@ -35,7 +35,10 @@ $output = '';
 // init the required plus functions
 $eqdkp_root_path = '';
 require_once('classes/plus/urlreader.class.php');
+require_once('classes/plus/xmlTools.class.php');
+require_once('classes/plus/core.functions.php');
 $urlreader    = new urlreader();
+$xmltools     = new xmlTools();
 
 // load the armory class
 include_once('classes/ArmoryChars.class.php');
@@ -54,59 +57,68 @@ $chardata 	= $armory->GetCharacterData($tmp_charname,$tmp_servername,$tmp_loc, $
 $testdata 	= $armory->BuildMemberArray($chardata[0]);
 $get_method	= ($urlreader->get_method()) ? $urlreader->get_method() : 'Cached';
 
+if($_GET['array'] == 'true'){
+	d($testdata);die();
+}
+
 if($testdata != 'no_char'){
 	$output .= '<table width="800">';
 	
 	$output .= '<tr><td width="220">Connection Method</td><td width="580"><span style="color:red;">'.$get_method.'</span></td></tr>';
 	$output .= '<tr><td width="220">Icon</td><td width="580"><img src="'.$testdata['ac_charicon'].'" alt="charicon" /></td></tr>';
-	$output .= '<tr><td width="220">Name</td><td width="580"><a href="'.$armory->Link($tmp_loc, $tmp_charname, $tmp_servername, 'char').'">'.$testdata['name'].'</a></td></tr>';
-	$output .= '<tr><td width="220">Titel</td><td width="580">'.$testdata['suffix'].'</td></tr>';
-	$output .= '<tr><td width="220">Klasse</td><td width="580">'.$testdata['class'].' [eqdkp-classid: '.$testdata['class_eqdkp'].']</td></tr>';
-	$output .= '<tr><td width="220">Rasse</td><td width="580">'.$testdata['race'].' [eqdkp-raceid: '.$testdata['race_eqdkp'].']</td></tr>';
-	$output .= '<tr><td width="220">Level</td><td width="580">'.$testdata['level'].'</td></tr>';
-	$output .= '<tr><td width="220">Geschlecht</td><td width="580">'.$testdata['gender'].' [gender-id: '.$testdata['genderid'].']</td></tr>';
-	$output .= '<tr><td width="220">Gilde</td><td width="580">'.$testdata['guildname'].'</td></tr>';
-	$output .= '<tr><td width="220">Faction</td><td width="580">'.$testdata['faction'].' [faction-id: '.$testdata['factionid'].']</td></tr>';
-	$output .= '<tr><td width="220">Honored Kills</td><td width="580">'.$testdata['honoredkills'].'</td></tr>';
-	$output .= '<tr><td width="220">Last Update</td><td width="580">'.$testdata['lastmodified'].'</td></tr>';
-	$ats = $armory->Date2Timestamp($testdata['lastmodified']);
+	
+	$character_data = $testdata['character']['@attributes'];
+	$output .= '<tr><td width="220">Name</td><td width="580"><a href="'.$armory->Link($tmp_loc, $tmp_charname, $tmp_servername, 'char').'">'.$character_data['name'].'</a></td></tr>';
+	$output .= '<tr><td width="220">Titel</td><td width="580">'.$character_data['suffix'].'</td></tr>';
+	$output .= '<tr><td width="220">Klasse</td><td width="580">'.$character_data['class'].' [eqdkp-classid: '.$testdata['class_eqdkp'].']</td></tr>';
+	$output .= '<tr><td width="220">Rasse</td><td width="580">'.$character_data['race'].' [eqdkp-raceid: '.$testdata['race_eqdkp'].']</td></tr>';
+	$output .= '<tr><td width="220">Level</td><td width="580">'.$character_data['level'].'</td></tr>';
+	$output .= '<tr><td width="220">Geschlecht</td><td width="580">'.$character_data['gender'].' [gender-id: '.$character_data['genderId'].']</td></tr>';
+	$output .= '<tr><td width="220">Gilde</td><td width="580">'.$character_data['guildName'].'</td></tr>';
+	$output .= '<tr><td width="220">Faction</td><td width="580">'.$character_data['faction'].' [faction-id: '.$character_data['factionId'].']</td></tr>';
+	$output .= '<tr><td width="220">Last Update</td><td width="580">'.$character_data['lastModified'].'</td></tr>';
+	$ats = $armory->Date2Timestamp($character_data['lastModified']);
 	$output .= '<tr><td width="220">LU Timestamp</td><td width="580">'.$ats.' ('.date('d.m.Y',$ats).')</td></tr>';
 	
+	$chartab_data = $testdata['characterTab'];
 	/**** basestats *****/
 	// INFO: not all for every basestat available
 	// AVAILABLE: armor, attack, base, critHitPercent, effective, petBonus, percent, healthRegen, manaRegen, mana
-	$output .= '<tr><td width="220">Strength</td><td width="580">'.$testdata['basestats']->strength['base'].'</td></tr>';
-	$output .= '<tr><td width="220">agility</td><td width="580">'.$testdata['basestats']->agility['base'].'</td></tr>';
-	$output .= '<tr><td width="220">stamina</td><td width="580">'.$testdata['basestats']->stamina['base'].'</td></tr>';
-	$output .= '<tr><td width="220">intellect</td><td width="580">'.$testdata['basestats']->intellect['base'].'</td></tr>';
-	$output .= '<tr><td width="220">spirit</td><td width="580">'.$testdata['basestats']->spirit['base'].'</td></tr>';
-	$output .= '<tr><td width="220">armor</td><td width="580">'.$testdata['basestats']->armor['base'].'</td></tr>';
+	$output .= '<tr><td width="220">Strength</td><td width="580">'.$chartab_data['baseStats']['strength']['@attributes']['base'].'</td></tr>';
+	$output .= '<tr><td width="220">agility</td><td width="580">'.$chartab_data['baseStats']['agility']['@attributes']['base'].'</td></tr>';
+	$output .= '<tr><td width="220">stamina</td><td width="580">'.$chartab_data['baseStats']['stamina']['@attributes']['base'].'</td></tr>';
+	$output .= '<tr><td width="220">intellect</td><td width="580">'.$chartab_data['baseStats']['intellect']['@attributes']['base'].'</td></tr>';
+	$output .= '<tr><td width="220">spirit</td><td width="580">'.$chartab_data['baseStats']['spirit']['@attributes']['base'].'</td></tr>';
+	$output .= '<tr><td width="220">armor</td><td width="580">'.$chartab_data['baseStats']['armor']['@attributes']['base'].'</td></tr>';
 	
 	/**** resistences *****/
 	// AVAILABLE: value, petBonus
-	$output .= '<tr><td width="220">Arcane</td><td width="580">'.$testdata['resistances']->arcane['value'].'</td></tr>';
-	$output .= '<tr><td width="220">Fire</td><td width="580">'.$testdata['resistances']->fire['value'].'</td></tr>';
-	$output .= '<tr><td width="220">Frost</td><td width="580">'.$testdata['resistances']->frost['value'].'</td></tr>';
-	$output .= '<tr><td width="220">Holy</td><td width="580">'.$testdata['resistances']->holy['value'].'</td></tr>';
-	$output .= '<tr><td width="220">Nature</td><td width="580">'.$testdata['resistances']->nature['value'].'</td></tr>';
-	$output .= '<tr><td width="220">Shadow</td><td width="580">'.$testdata['resistances']->shadow['value'].'</td></tr>';
+	$output .= '<tr><td width="220">Arcane</td><td width="580">'.$chartab_data['resistances']['arcane']['@attributes']['value'].'</td></tr>';
+	$output .= '<tr><td width="220">Fire</td><td width="580">'.$chartab_data['resistances']['fire']['@attributes']['value'].'</td></tr>';
+	$output .= '<tr><td width="220">Frost</td><td width="580">'.$chartab_data['resistances']['frost']['@attributes']['value'].'</td></tr>';
+	$output .= '<tr><td width="220">Holy</td><td width="580">'.$chartab_data['resistances']['holy']['@attributes']['value'].'</td></tr>';
+	$output .= '<tr><td width="220">Nature</td><td width="580">'.$chartab_data['resistances']['nature']['@attributes']['value'].'</td></tr>';
+	$output .= '<tr><td width="220">Shadow</td><td width="580">'.$chartab_data['resistances']['shadow']['@attributes']['value'].'</td></tr>';
 	
 	/**** Character Bars *****/
 	// AVAILABLE: *health* effective; *secondbar* casting, notCasting, type, effective
-	$output .= '<tr><td width="220">Health</td><td width="580">'.$testdata['characterbars']->health['effective'].'</td></tr>';
-	$output .= '<tr><td width="220">2nd</td><td width="580">'.$testdata['characterbars']->secondBar['effective'].'</td></tr>';
-	$output .= '<tr><td width="220">2nd_2</td><td width="580">'.$testdata['characterbars']->secondBar['type'].'</td></tr>';
+	$output .= '<tr><td width="220">Health</td><td width="580">'.$chartab_data['characterBars']['health']['@attributes']['effective'].'</td></tr>';
+	$output .= '<tr><td width="220">2nd</td><td width="580">'.$chartab_data['characterBars']['secondBar']['@attributes']['effective'].'</td></tr>';
+	$output .= '<tr><td width="220">2nd_2</td><td width="580">'.$chartab_data['characterBars']['secondBar']['@attributes']['type'].'</td></tr>';
 	
+	
+	$talents = $chartab_data['talentSpecs']['talentSpec'];
 	/**** Spec Tree One & Two *****/
 	// AVAILABLE: active, group, icon, prim, treeOne, treeThree, treeTwo
-	$output .= '<tr><td width="220">Skilltree 1</td><td width="580">'.$testdata['spec1']['treeOne'].'-'.$testdata['spec1']['treeTwo'].'-'.$testdata['spec1']['treeThree'].' ('.$testdata['spec1']['prim'].') '.(($testdata['spec1']['active']) ? '[Aktiv]' : '').'</td></tr>';
-	$output .= (@$testdata['spec2']) ? '<tr><td width="220">Skilltree 2</td><td width="580">'.$testdata['spec2']['treeOne'].'-'.$testdata['spec2']['treeTwo'].'-'.$testdata['spec2']['treeThree'].' ('.$testdata['spec2']['prim'].') '.(($testdata['spec2']['active']) ? '[Aktiv]' : '').'</td></tr>' : '';
+	$output .= '<tr><td width="220">Skilltree 1</td><td width="580">'.$talents[0]['@attributes']['treeOne'].'-'.$talents[0]['@attributes']['treeTwo'].'-'.$talents[0]['@attributes']['treeThree'].' ('.$talents[0]['@attributes']['prim'].') '.(($talents[0]['@attributes']['active']) ? '[Aktiv]' : '').'</td></tr>';
+	$output .= (@$talents[1]['@attributes']['prim']) ? '<tr><td width="220">Skilltree 2</td><td width="580">'.$talents[1]['@attributes']['treeOne'].'-'.$talents[1]['@attributes']['treeTwo'].'-'.$talents[1]['@attributes']['treeThree'].' ('.$talents[1]['@attributes']['prim'].') '.(($talents[1]['@attributes']['active']) ? '[Aktiv]' : '').'</td></tr>' : '';
 	
 	/**** Professions *****/
 	// AVAILABLE: id, key, max, name, value
-	foreach($testdata['professions']->children() as $professions){
-	$output .= '<tr><td width="220">'.$professions['name'].'</td><td width="580">'.$professions['value'].'</td></tr>';
+	foreach($chartab_data['professions']['skill'] as $professions){
+	$output .= '<tr><td width="220">'.$professions['@attributes']['name'].'</td><td width="580">'.$professions['@attributes']['value'].'</td></tr>';
 	}
+	
 	
 	/**** Items *****/
 	// AVAILABLE: displayInfoId, durability, gem0Id, gem1Id, gem2Id, gemIcon0, gemIcon1, gemIcon2, icon, id, level, maxDurability, name, permanentEnchantIcon
@@ -122,21 +134,22 @@ if($testdata != 'no_char'){
 								<th width="30">Slot</th>
 							</tr>';
 							
-	foreach($testdata['items'] as $myitems){
-		$gemarray = array($myitems['gem0Id'],$myitems['gem1Id'],$myitems['gem2Id']);
-		$output .= '<tr><td>'.$myitems['name'].'</td><td>'.$myitems['id'].'</td><td>'.$myitems['permanentenchant'].'</td><td>'.implode(', ', $gemarray).'</td><td>'.$myitems['level'].'</td><td>'.$myitems['slot'].'</td></tr>';
+	foreach($chartab_data['items']['item'] as $myitems){
+		$gemarray = array($myitems['@attributes']['gem0Id'],$myitems['@attributes']['gem1Id'],$myitems['@attributes']['gem2Id']);
+		$output .= '<tr><td>'.$myitems['@attributes']['name'].'</td><td>'.$myitems['@attributes']['id'].'</td><td>'.$myitems['@attributes']['permanentenchant'].'</td><td>'.implode(', ', $gemarray).'</td><td>'.$myitems['@attributes']['level'].'</td><td>'.$myitems['@attributes']['slot'].'</td></tr>';
 	}
 	$output .='</table></td></tr>';
 	
+	$achvmnt_data = $testdata['summary'];
 	/**** Achievements *****/
 	$output .= '<tr><td colspan=2><b><a href="'.$armory->Link($tmp_loc, $tmp_charname, $tmp_servername, 'achievements').'">Achievements</a></b></td></tr>';
-	$output .='<tr><td width="220"> Points</td><td width="580">'.$testdata['achievements']['main']['points'].'</td></tr>';
-	$output .='<tr><td width="220">Progress</td><td width="580">'.$testdata['achievements']['main']['earned'].'/'.$testdata['achievements']['main']['total'].'</td></tr>';
+	$output .='<tr><td width="220"> Points</td><td width="580">'.$achvmnt_data['c']['@attributes']['points'].'</td></tr>';
+	$output .='<tr><td width="220">Progress</td><td width="580">'.$achvmnt_data['c']['@attributes']['earned'].'/'.$achvmnt_data['c']['@attributes']['total'].'</td></tr>';
 	
-	foreach($testdata['achievements']['detail'] as $myAchievements){
-		if($myAchievements['main']['id'] != '81'){
-			$output .='<tr><td width="220">'.$myAchievements['main']['name'].'</td>
-		<td width="580">'.$myAchievements['child']['earned'].'/'.$myAchievements['child']['total'].'</td></tr>';
+	foreach($achvmnt_data['category'] as $myAchievements){
+		if($myAchievements['@attributes']['id'] != '81'){
+			$output .='<tr><td width="220">'.$myAchievements['c']['@attributes']['name'].'</td>
+		<td width="580">'.$myAchievements['c']['@attributes']['earned'].'/'.$myAchievements['c']['@attributes']['total'].'</td></tr>';
 		}
 	}
 	

@@ -23,7 +23,7 @@ if ( !defined('EQDKP_INC') ){
 class PHPArmory
 {
 	public $version				= '4.0.0';
-	public $build					= '19052010a';
+	public $build					= '30052010a';
 	private $caching			= true;
 	private $cachingtime	= 12;		// in hours
 	private $xml_timeout	= 20;  	// seconds to pass for timeout
@@ -63,11 +63,12 @@ class PHPArmory
   * @return bool
   */
 	function __construct($lang='en_en'){
-	 global $ac_trans, $pcache;
+	 global $ac_trans, $pcache, $xmltools;
 		$this->armoryLang   = $lang;
 		require('armory.convert.php');
 		$this->convert      = $ac_trans;
 		$this->pcache				= $pcache;
+		$this->xmlTools			= $xmltools;
 	}
 	
 	/**
@@ -207,9 +208,8 @@ class PHPArmory
   * @return Timestamp
   */
 	public function Date2Timestamp($armdate){
-	 global $ac_trans;
 		$tmpdate = explode(" ", trim($armdate));
-    return strtotime($tmpdate[0].' '.$tmpdate[1].' '.$tmpdate[2]);
+    return strtotime(substr($tmpdate[2].'-'.$tmpdate[1].'-'.$tmpdate[0], 0, -1));
   }
 	
 	/**
