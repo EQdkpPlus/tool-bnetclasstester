@@ -1,100 +1,173 @@
 <?php
  /*
- * Project:     eqdkpPLUS Libraries: Armory
- * License:     Creative Commons - Attribution-Noncommercial-Share Alike 3.0 Unported
- * Link:		    http://creativecommons.org/licenses/by-nc-sa/3.0/
+ * Project:		EQdkp-Plus
+ * License:		Creative Commons - Attribution-Noncommercial-Share Alike 3.0 Unported
+ * Link:		http://creativecommons.org/licenses/by-nc-sa/3.0/
  * -----------------------------------------------------------------------
- * Began:       2007
- * Date:        $Date: 2010-05-30 17:48:36 +0200 (Sun, 30 May 2010) $
+ * Began:		2007
+ * Date:		$Date: 2011-03-18 20:10:20 +0100 (Fri, 18 Mar 2011) $
  * -----------------------------------------------------------------------
- * @author      $Author: wallenium $
- * @copyright   2008 Simon (Wallenium) Wallmann
- * @link        http://eqdkp-plus.com
- * @package     libraries:armory
- * @version     $Rev: 7950 $
+ * @author		$Author: wallenium $
+ * @copyright	2006-2011 EQdkp-Plus Developer Team
+ * @link		http://eqdkp-plus.com
+ * @package		eqdkp-plus
+ * @version		$Rev: 10112 $
  * 
- * $Id: ArmoryChars.class.php 7950 2010-05-30 15:48:36Z wallenium $
+ * $Id: armory.class.php 10112 2011-03-18 19:10:20Z wallenium $
  */
 
 if ( !defined('EQDKP_INC') ){
-    header('HTTP/1.0 404 Not Found');exit;
+	header('HTTP/1.0 404 Not Found');exit;
 }
 
 require('armory.class.php');
 
 class ArmoryChars extends PHPArmory
 {
-  /**
-  * Download Character Information
-  * 
-  * @param $user Character Name
-  * @param $realm Realm Name
-  * @param $loc Server Location (us/eu)
-  * @param $lang Language of output (en_us/de_de/fr_fr) 
-  * @param $parse Parsed Output (true) or XML (false)       
-  * @return bol
-  */
-	public function GetCharacterData($user, $realm, $loc='us', $lang='en_us', $force=false, $parse=true){
-	  $wowurl = $this->links[$loc].'character-sheet.xml?r='.$this->ConvertInput($realm).'&n='.$this->ConvertInput($user);
-		if(!$lxml	= $this->get_CachedXML($user.$realm, $force)){
-			$lxml	= $this->read_url($wowurl, $lang);
-			$this->CacheXML($lxml, $user.$realm);
-		}
-		if($parse == true){
-			$xml 	= simplexml_load_string($lxml);
-			if(is_object($xml)){
-				return $xml->xpath("/page/characterInfo");
-			}else{
-				return 0;	
-			}
-		}else{
-			return $lxml;
-		}
-	}
 	
 	/**
-  * Download Achievement Information
-  * 
-  * @param $category Category name
-  * @param $user Character Name
-  * @param $realm Realm Name
-  * @param $loc Server Location (us/eu)
-  * @param $lang Language of output (en_us/de_de/fr_fr) 
-  * @param $parse Parsed Output (true) or XML (false)       
-  * @return bol
-  */
-	public function GetAchievementData($category, $user, $realm, $loc='us', $lang='en_us'){
-		$wowurl = $this->links[$loc].'character-achievements.xml?r='.$this->ConvertInput($realm).'&cn='.$this->ConvertInput($user).'&c='.$category;
-		if(!$xmldata = $this->get_CachedXML('achievement_'.$user.$realm, $force)){
+	* Download Character Information
+	* 
+	* @param $user Character Name
+	* @param $realm Realm Name
+	* @param $loc Server Location (us/eu)
+	* @param $lang Language of output (en_us/de_de/fr_fr) 
+	* @param $parse Parsed Output (true) or XML (false)
+	* @return bol
+	*/
+	public function character($user, $realm, $lang='en_us', $force=false){
+		$realm = $this->cleanServername($realm);
+		$wowurl = $this->getServerLink().'/api/wow/character/'.$this->ConvertInput($realm).'/'.$this->ConvertInput($user).'?fields=reputation,primary skills, secondary skills,talents';
+		if(!$json	= $this->get_CachedJSON($user.$realm, $force)){
+			$json	= $this->read_url($wowurl, $this->serverlang);
+			$this->CacheJSON($json, $user.$realm);
+		}
+		$chardata	= json_decode($json, true);
+		$errorchk	= $this->CheckIfChar($chardata);
+		if(!$errorchk){
+			return $chardata;
+		}else{
+			return $errorchk;
+		}
+	}
+
+	public function charicon($thumb){
+		return $this->getServerLink().'/static-render/eu/'.$thumb;
+	}
+
+	/**
+	* Check if a char exists, if not --> error Code
+	* 
+	* @param $chardata		XML Data of Char
+	* @return error code
+	*/
+	protected function CheckIfChar($chardata){
+		$status	= (isset($chardata['status'])) ? $chardata['status'] : false;
+		$reason	= (isset($chardata['reason'])) ? $chardata['reason'] : false;
+		$error = '';
+		if($status){
+			return array('status'=>$status,'reason'=>$reason);
+		}else{
+			return false;
+		}
+	}
+
+	/**
+	* Download Achievement Information
+	* 
+	* @param $category Category name
+	* @param $user Character Name
+	* @param $realm Realm Name
+	* @param $loc Server Location (us/eu)
+	* @param $lang Language of output (en_us/de_de/fr_fr) 
+	* @param $parse Parsed Output (true) or XML (false)
+	* @return bol
+	*/
+	/*public function GetAchievementData($category, $user, $realm, $loc='us', $lang='en_us', $parse=false, $asarray=false){
+		$realm = $this->cleanServername($realm);
+		$wowirl	= $this->links[$loc].'/api/wow/character/'.$this->ConvertInput($realm).'/'.$this->ConvertInput($user).'?fields=achievements';
+
+		if(!$xmldata = $this->get_CachedJSON('achievement_'.$user.$realm, $force)){
 			$xmldata	= $this->read_url($wowurl, $lang);
-			$this->CacheXML($xmldata, 'achievement_'.$user.$realm);
+			$this->CacheJSON($xmldata, 'achievement_'.$user.$realm);
 		}
 		if($parse == true){
 			$xml = simplexml_load_string($xmldata);
-			if(is_object($xml)){   
-				return $xml;
+			if($asarray == true){
+				$data = $this->xmlTools->simplexml2array($xml);
+				if(is_array($data)){
+					return $data;
+				}else{
+					return 0;
+				}
 			}else{
-				return 0;    
+				if(is_object($xml)){
+					return $xml;
+				}else{
+					return 0;
+				}
 			}
 		}else{
 			return $xmldata;
 		}
-	}
+	}*/
+
+	/**
+	* Download BossKill Information
+	* 
+	* @param $category Category name
+	* @param $user Character Name
+	* @param $realm Realm Name
+	* @param $loc Server Location (us/eu)
+	* @param $lang Language of output (en_us/de_de/fr_fr) 
+	* @param $parse Parsed Output (true) or XML (false)
+	* @return bol
+	*/
+	/*public function GetBossKillData($category, $user, $realm, $loc='us', $lang='en_us', $parse=false, $asarray=false){
+		$realm = $this->cleanServername($realm);
+		$wowurl = $this->links[$loc].'character-statistics.xml?r='.$this->ConvertInput($realm).'&cn='.$this->ConvertInput($user).'&c='.$category;
+		if(!$xmldata = $this->get_CachedXML('bosskills_'.$user.$realm, $force)){
+			$xmldata	= $this->read_url($wowurl, $lang);
+			$this->CacheXML($xmldata, 'bosskills_'.$user.$realm);
+		}
+		if($parse == true){
+			$xml = simplexml_load_string($xmldata);
+			if($asarray == true){
+				$data = $this->xmlTools->simplexml2array($xml);
+				if(is_array($data)){
+					return $data;
+				}else{
+					return 0;    
+				}
+			}else{
+				if(is_object($xml)){   
+					return $xml;
+				}else{
+					return 0;    
+				}
+			}
+		}else{
+			return $xmldata;
+		}
+	}*/
+
 	
 	/**
-  * Download the Guild List of Armory
-  * 
-  * @param $guild Guildname on Realm
-  * @param $realm Name of Realm
-  * @param $loc Server Location (us/eu)
-  * @param $minLevel Minimut Character Level to fetch
-  * @param $clsFilter Classname, if set --> List users of that class only
-  * @param $lang Language of output (en_us/de_de/fr_fr)
-  * @param $parse Parsed Output (true) or XML (false)  
-  * @return bool
-  */
-	public function GetGuildMembers($guild, $realm, $loc='us', $minLevel, $clsFilter, $rnkFilter, $lang='en_us', $force=false, $parse=true) {
-    $wowurl = $this->links[$loc]."guild-info.xml?r=".$this->ConvertInput($realm)."&n=".$this->ConvertInput($guild)."&p=1";
+	* Download the Guild List of Armory
+	* 
+	* @param $guild Guildname on Realm
+	* @param $realm Name of Realm
+	* @param $loc Server Location (us/eu)
+	* @param $minLevel Minimut Character Level to fetch
+	* @param $clsFilter Classname, if set --> List users of that class only
+	* @param $lang Language of output (en_us/de_de/fr_fr)
+	* @param $parse Parsed Output (true) or XML (false)  
+	* @param $asarray Parsed Output (true) or XML (false)  
+	* @return bool
+	*/
+	/*public function GetGuildMembers($guild, $realm, $loc='us', $minLevel, $clsFilter, $rnkFilter, $lang='en_us', $force=false, $parse=true, $asarray=false) {
+		$realm = $this->cleanServername($realm);
+		$wowurl = $this->links[$loc]."guild-info.xml?r=".$this->ConvertInput($realm)."&n=".$this->ConvertInput($guild)."&p=1";
 		if(!$xmldata = $this->get_CachedXML($guild.$realm, $force)){
 			$xmldata	= $this->read_url($wowurl, $lang);
 			$this->CacheXML($xmldata, $guild.$realm);
@@ -103,19 +176,25 @@ class ArmoryChars extends PHPArmory
 			$xml = simplexml_load_string($xmldata);
 			return $this->getCharacterList($xml, $minLevel, $clsFilter, $rnkFilter);
 		}else{
-			return $xmldata;
+			if($asarray == true)
+			{
+				$xml = simplexml_load_string($xmldata);
+				return $this->xmlTools->simplexml2array($xml);
+			}else{				
+				return $xmldata;
+			}	
 		}
-	}
+	}*/
 	
 	/**
-  * Build Character List with some details out of Guild List
-  * 
-  * @param $xml XML Input of Armory
-  * @param $minLevel List users higher than this Level only
-  * @param $class List users of that Class only
-  * @return bol List Array
-  */
-	private function getCharacterList($xml, $minLevel, $class, $rank) {
+	* Build Character List with some details out of Guild List
+	* 
+	* @param $xml XML Input of Armory
+	* @param $minLevel List users higher than this Level only
+	* @param $class List users of that Class only
+	* @return bol List Array
+	*/
+	/*private function getCharacterList($xml, $minLevel, $class, $rank) {
 		$cList = array();
 		if(is_object($xml)){
 			$characters = $xml->xpath("/page/guildInfo/guild/members/character");
@@ -138,8 +217,8 @@ class ArmoryChars extends PHPArmory
 		  						'gender'					=> $attribs['genderId'],
 		  						'raceid'					=> $attribs['raceId'],
 		  						'classid'					=> $attribs['classId'],
-		  						'eqdkp_classid'		=> $this->ConvertID($attribs['classId'], 'int', 'classes'),
-		  						'eqdkp_raceid'		=> $this->ConvertID($attribs['raceId'], 'int', 'races'),
+		  						'eqdkp_classid'				=> $this->ConvertID($attribs['classId'], 'int', 'classes'),
+		  						'eqdkp_raceid'				=> $this->ConvertID($attribs['raceId'], 'int', 'races'),
 		  					);
 	  					} // end rank filter
 	  				} // end class filter
@@ -150,204 +229,48 @@ class ArmoryChars extends PHPArmory
 		}else{
 			return 'no_membeinfo';
 		} // end of is_object
-	}
-	
+	}*/
+
 	/**
-  * Check if a char exists, if not --> error Code
-  * 
-  * @param $chardata		XML Data of Char
-  * @return error code
-  */
-  protected function CheckIfChar($chardata){
-    $error = '';
-    if(!is_object($chardata)){
-    	$error = 'old_char';
-    }elseif($chardata->attributes()){
-      foreach($chardata->attributes() as $a=>$b){
-        if($a === "errCode"){
-          $error = 'no_char';
-        }
-      }
-    }else{
-      if(empty($chardata->characterTab)){
-        $error = 'old_char';
-      }
-    }
-    return $error;
-  }
-	
-	/**
-  * Check if an error occured
-  * 
-  * @return error
-  */
+	* Check if an error occured
+	* 
+	* @return error
+	*/
 	public function CheckError(){
-    return ($this->error) ? $this->error : false;
-  }
-	
+		return ($this->error) ? $this->error : false;
+	}
+
 	/**
-  * Get the Character Icons with Armory ID
-  * 
-  * @param $loc			Localization
-  * @param $level		Level of the Char
-  *	@param $gender	Gender ID
-  * @param $race		Race ID
-  * @param $class		Class ID
-  * @return bol List Array
-  */
+	* Get the Character Icons with Armory ID
+	* 
+	* @param $loc			Localization
+	* @param $level		Level of the Char
+	*	@param $gender	Gender ID
+	* @param $race		Race ID
+	* @param $class		Class ID
+	* @return bol List Array
+	*/
 	private function getCharacterIcon($loc, $level, $genderid, $raceid, $classid){
 		$dir = 'wow'.($level < '60' ? '-default' : ($level < '80' ? '-70' : '-80'));
-    return $this->links[$loc]."_images/portraits/$dir/{$genderid}-{$raceid}-{$classid}.gif";
-   }
-  
-  /**
-  * Get the Character Icons by EQDKP-PLUS Variables
-  * 
-  * @param $loc			Localization
-  * @param $level		Level of the Char
-  *	@param $gender	Gender Male/Female
-  * @param $race		Race ID of EQDKP
-  * @param $class		Class ID of EQDKP
-  * @return bol List Array
-  */
+		return $this->links[$loc]."_images/portraits/$dir/{$genderid}-{$raceid}-{$classid}.gif";
+	}
+
+	/**
+	* Get the Character Icons by EQDKP-PLUS Variables
+	* 
+	* @param $loc			Localization
+	* @param $level		Level of the Char
+	*	@param $gender	Gender Male/Female
+	* @param $race		Race ID of EQDKP
+	* @param $class		Class ID of EQDKP
+	* @return bol List Array
+	*/
 	public function getCharacterIconPLUS($loc, $level, $gender, $race, $class){
-		$genderid = $this->ConvertID($gender, 'string', 'gender', true);
+		$genderid	= $this->ConvertID($gender, 'string', 'gender', true);
 		$raceid		= $this->ConvertID($race, 'int', 'races', true);
 		$classid	= $this->ConvertID($class, 'int', 'classes', true);
 		return $this->getCharacterIcon($loc, $level, $genderid, $raceid, $classid);
 	}
 	
-	/**
-  * Build Character Detail Array
-  * 
-  * @param $xml XML Input of Armory
-  * @return bol List Array
-  */
-  public function BuildMemberArray($chardata, $loc='us'){
-  	$myerror			= $this->CheckIfChar($chardata);
-  	$dataarray	= array();
-  	
-  	if(!$myerror){
-	  	$dataarray = $this->xmlTools->simplexml2array($chardata);
-	  	
-	  	// Char Icon
-	  	$character_data = $dataarray['character']['@attributes'];
-	  	$dataarray['class_eqdkp']	= $this->ConvertID($character_data['classId'], 'int', 'classes');
-      $dataarray['race_eqdkp']	= $this->ConvertID($character_data['raceId'], 'int', 'races');
-	  	if($character_data['level'] && $character_data['classId'] && $character_data['genderId'] && $character_data['raceId']){
-	  		$dataarray['ac_charicon'] = $this->getCharacterIcon($loc, $character_data['level'], $character_data['genderId'], $character_data['raceId'], $character_data['classId']);
-	  	}
-	  	return $dataarray;
-  	}else{
-      return $myerror;
-    }
-  }
-  
-	public function BuildMemberObject($chardata, $loc='us'){
-		$dataarray = $memberarray = array();
-		$myerror = $this->CheckIfChar($chardata);
-
-		if(!$myerror){
-  		foreach($chardata->character->attributes() as $a => $b) {
-      	$dataarray[strtolower($a)] = $b;
-
-      	// Add the enflish ones:
-      	if($a == 'classId'){
-          $dataarray['class_eqdkp'] = $this->ConvertID($b, 'int', 'classes');
-        }
-        if($a == 'raceId'){
-          $dataarray['race_eqdkp'] = $this->ConvertID($b, 'int', 'races');
-        }
-  		}
-  		
-  		// Specs
-  		$talentspecs = array();
-  		foreach($chardata->characterTab->talentSpecs as $a => $b) {
-      	$talentspecs[strtolower($a)] = $b;
-  		}
-  		foreach($talentspecs['talentspecs']->children() as $myTalents){
-  		  $dataarray['spec'.$myTalents['group']] = $myTalents;
-      }
-      $dataarray['dualspec'] = (count($dataarray) > 1) ? true : false;
-      
-      // Professions
-  		foreach($chardata->characterTab->professions as $a => $b) {
-      	$dataarray[strtolower($a)] = $b;
-  		}
-  		
-  		// Resistances
-  		foreach($chardata->characterTab->resistances as $a => $b) {
-      	$dataarray[strtolower($a)] = $b;
-  		}
-  		
-  		// Base Stats
-  		foreach($chardata->characterTab->baseStats as $a => $b) {
-      	$dataarray[strtolower($a)] = $b;
-  		}
-  		
-  		// melee
-  		foreach($chardata->characterTab->melee as $a => $b) {
-      	$dataarray[strtolower($a)] = $b;
-  		}
-  		
-  		// ranged
-  		foreach($chardata->characterTab->ranged as $a => $b) {
-      	$dataarray[strtolower($a)] = $b;
-  		}
-  		
-  		// spell
-  		foreach($chardata->characterTab->spell as $a => $b) {
-      	$dataarray[strtolower($a)] = $b;
-  		}
-  		
-  		// defenses
-  		foreach($chardata->characterTab->defenses as $a => $b) {
-      	$dataarray[strtolower($a)] = $b;
-  		}
-  		
-  		// Character Bars
-  		foreach($chardata->characterTab->characterBars as $a => $b) {
-      	$dataarray[strtolower($a)] = $b;
-  		}
-  		
-  		// Glyphs
-  		foreach($chardata->characterTab->glyphs as $a => $b) {
-      	$dataarray[strtolower($a)] = $b;
-  		}
- 
-  		// Items
-  		foreach($chardata->characterTab->items as $a => $b) {
-      	$dataarray[strtolower($a)] = $b;
-  		}
-  		
-  		// Achievements: Overview ($dataarray['achievements']['main']['totalpoints'];)
-  		foreach($chardata->summary->c->attributes() as $a=>$b) {
-  			$dataarray['achievements']['main'][strtolower($a)] = $b;
-  		}
-  		
-  		// Achievements:
-  		$idd = 1;
-  		foreach($chardata->summary as $b) {
-  			foreach($b as $c=>$d){
-  				if($c!='c'){
-  					// We will build an array...
-  					$dataarray['achievements']['detail'][$idd]['main']	= $d->attributes();
-  					$dataarray['achievements']['detail'][$idd]['child'] = $d->c->attributes();
-  					$idd++;
-  				}
-  			}
-  		}
-  		
-  		// Char Icon
-  		if($dataarray['level'] && $dataarray['classid'] && $dataarray['genderid'] && $dataarray['raceid']){
-  			$dataarray['ac_charicon'] = $this->getCharacterIcon($loc, $dataarray['level'], $dataarray['genderid'], $dataarray['raceid'], $dataarray['classid']);
-  		}
-  		
-  		// Honored kills
-  		$dataarray['honoredkills'] = $chardata->characterTab->pvp->lifetimehonorablekills['value'];
-  		return $dataarray;
-		}else{
-      return $myerror;
-    }
-	}
 }
+?>
