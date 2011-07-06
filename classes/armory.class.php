@@ -5,31 +5,30 @@
  * Link:		http://creativecommons.org/licenses/by-nc-sa/3.0/
  * -----------------------------------------------------------------------
  * Began:		2007
- * Date:		$Date: 2011-03-18 20:10:20 +0100 (Fri, 18 Mar 2011) $
+ * Date:		$Date$
  * -----------------------------------------------------------------------
- * @author		$Author: wallenium $
+ * @author		$Author$
  * @copyright	2006-2011 EQdkp-Plus Developer Team
  * @link		http://eqdkp-plus.com
  * @package		eqdkp-plus
- * @version		$Rev: 10112 $
+ * @version		$Rev$
  * 
- * $Id: armory.class.php 10112 2011-03-18 19:10:20Z wallenium $
+ * $Id$
+ *
+ * Based on the new battlenet API, see documentation: http://blizzard.github.com/api-wow-docs/
  */
 
 if ( !defined('EQDKP_INC') ){
 	header('HTTP/1.0 404 Not Found');exit;
 }
 
-class PHPArmory
+class bnetArmory
 {
-	public $version			= '5.a1';
-	public $build			= '03072011a';
+	private $version		= '5.0';
+	private $build			= '$Rev$';
 	private $caching		= true;
 	private $cachingtime	= 12;	// in hours
-	private $xml_timeout	= 20;	// seconds to pass for timeout
-	private $user_agent		= 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.2) Gecko/20070220 Firefox/2.0.0.2';
 	private $serverloc		= 'us';
-	private $serverlang		= 'en_EN';
 	
 	protected $convert		= array(
 		'classes' => array(
@@ -63,43 +62,23 @@ class PHPArmory
 			'1'		=> 'Female',
 		),
 	);
-	
-	protected $links		= array(
-		'eu'	=> 'http://eu.battle.net',
-		'us'	=> 'http://www.battle.net',
-		'kr'	=> 'http://kr.battle.net',
-		'cn'	=> 'http://cn.battle.net',
-		'tw'	=> 'http://tw.battle.net',
-	);
-	private $serverlocs  = array(
+
+	private $serverlocs		= array(
 		'eu'	=> 'EU',
 		'us'	=> 'US',
-		'cn'	=> 'CN',
 		'kr'	=> 'KR',
 		'tw'	=> 'TW',
 	);
-	private $armlanguages  = array(
-		'de_de'	=> 'Deutsch',
-		'en_gb'	=> 'English (EU)',
-		'en_us'	=> 'English (US)',
-		'es_mx'	=> 'Español (AL)',
-		'es_es'	=> 'Español (EU)',
-		'fr_fr'	=> 'Français',
-		'ru_ru'	=> 'Russian',
-		'ko_kr'	=> 'Korean',
-	);
-	private $converts = array();
+	private $converts		= array();
 
 	/**
 	* Initialize the Class
 	* 
-	* @param $loadme	Which modules to load: items, chars
 	* @param $lang		Which language to import
 	* @return bool
 	*/
 	public function __construct($lang='en_en'){
 		global $pcache, $user;
-		$this->armoryLang	= $lang;
 		$this->pcache		= $pcache;
 	}
 
@@ -107,41 +86,19 @@ class PHPArmory
 		if(isset($setting['loc'])){
 			$this->serverloc	= $setting['loc'];
 		}
-		if(isset($setting['lang'])){
-			$this->serverlang	= $setting['lang'];
-		}
 	}
-	
+
+	public function getVersion(){
+		return $this->version.((preg_match('/\d+/', $this->build, $match))? '#'.$match[0] : '');
+	}
+
 	public function getServerLink(){
-		return $this->links[$this->serverloc];
+		return 'http://'.$this->serverloc.'.battle.net';
 	}
 
 	public function language($string){
 		global $user;
 		return $user->lang($string);
-	}
-
-	/**
-	* Get the Server Location
-	*
-	* @return string output
-	*/
-	public function GetLocs(){
-		return $this->serverlocs;
-	}
-
-	/**
-	* Get the Server Location
-	* 
-	* @param $loc	  		Location of Server
-	* @return string output
-	*/
-	public function GetLink($loc=''){
-		if($loc){
-			return $this->links[$loc];
-		}else{
-			return $this->links;
-		}
 	}
 
 	/**
@@ -154,12 +111,12 @@ class PHPArmory
 	* @param $guild			Name of the guild
 	* @return string		output
 	*/
-	public function Link($user, $server, $mode='char', $guild=''){
+	public function bnlink($user, $server, $mode='char', $guild=''){
 		// init the variables
 		$myGuild 	= $this->ConvertInput($guild);
 		$myServer	= $this->ConvertInput($server, true);
 		$myUser		= $this->ConvertInput($user);
-		$linkprfx	= 'http://'.$this->serverloc.'.battle.net/wow/en/';
+		$linkprfx	= $this->getServerLink().'/wow/en/';
 
 		// Generate the Output
 		switch ($mode) {
@@ -180,17 +137,113 @@ class PHPArmory
 			case 'character-feed':
 				return $linkprfx.'character/'.$myServer.'/'.$myUser."/feed";break;
 			case 'character-feed-atom':
-				return $this->links[$this->serverloc].'character-feed.atom??'.$myServer.'&'.$myUser;break;
+				return $this->getServerLink().'character-feed.atom??'.$myServer.'&'.$myUser;break;
 		}
 	}
 
 	/**
-	* Get the Server Languages
+	* Fetch character information
 	* 
-	* @return string output
+	* @param $user		Character Name
+	* @param $realm		Realm Name
+	* @param $force		Force the cache to update?
+	* @return bol
 	*/
-	public function GetLanguages(){
-		return $this->armlanguages;
+	public function character($user, $realm, $force=false){
+		$realm = $this->cleanServername($realm);
+		$wowurl = $this->getServerLink().'/api/wow/character/'.$this->ConvertInput($realm).'/'.$this->ConvertInput($user).'?fields=guild,stats,talents,items,reputation,titles,professions,appearance,companions,mounts,pets,achievements,progression';
+		if(!$json	= $this->get_CachedJSON('chardata_'.$user.$realm, $force)){
+			$json	= $this->read_url($wowurl);
+			$this->CacheJSON($json, 'chardata_'.$user.$realm);
+		}
+		$chardata	= json_decode($json, true);
+		$errorchk	= $this->CheckIfError($chardata);
+		return (!$errorchk) ? $chardata: $errorchk;
+	}
+
+	/**
+	* Create full character Icon Link
+	* 
+	* @param $thumb		Thumbinformation returned by battlenet JSON feed
+	* @return string
+	*/
+	public function characterIcon($thumb){
+		return $this->getServerLink().'/static-render/'.$this->serverloc.'/'.$thumb;
+	}
+
+	/**
+	* Fetch guild information
+	* 
+	* @param $user		Character Name
+	* @param $realm		Realm Name
+	* @param $force		Force the cache to update?
+	* @return bol
+	*/
+	public function guild($guild, $realm, $force=false){
+		$realm = $this->cleanServername($realm);
+		$wowurl = $this->getServerLink().'/api/wow/guild/'.$this->ConvertInput($realm).'/'.$this->ConvertInput($guild).'?fields=members,achievements';
+		if(!$json	= $this->get_CachedJSON('guilddata_'.$guild.$realm, $force)){
+			$json	= $this->read_url($wowurl);
+			$this->CacheJSON($json, 'guilddata_'.$guild.$realm);
+		}
+		$chardata	= json_decode($json, true);
+		$errorchk	= $this->CheckIfError($chardata);
+		return (!$errorchk) ? $chardata: $errorchk;
+	}
+
+	/**
+	* Fetch realm information
+	* 
+	* @param $realm		Realm Name
+	* @param $force		Force the cache to update?
+	* @return bol
+	*/
+	public function realm($realms, $force=false){
+		$realms = (is_array($realms)) ? $realms : array();
+		$wowurl = $this->getServerLink().'/api/wow/realm/status?realms='.implode(",",$realms);
+		if(!$json	= $this->get_CachedJSON('realmdata_'.$realm, $force)){
+			$json	= $this->read_url($wowurl);
+			$this->CacheJSON($json, 'realmdata_'.$realm);
+		}
+		$realmdata	= json_decode($json, true);
+		$errorchk	= $this->CheckIfError($realmdata);
+		return (!$errorchk) ? $realmdata: $errorchk;
+	}
+
+	/**
+	* Fetch item information
+	* 
+	* @param $itemid	battlenet Item ID
+	* @param $force		Force the cache to update?
+	* @return bol
+	*/
+	public function item($itemid, $force=false){
+		$wowurl = $this->getServerLink().'/api/wow/data/item/'.$itemid;
+		if(!$json	= $this->get_CachedJSON('itemdata_'.$itemid, $force)){
+			$json	= $this->read_url($wowurl);
+			$this->CacheJSON($json, 'itemdata_'.$itemid);
+		}
+		$itemdata	= json_decode($json, true);
+		$errorchk	= $this->CheckIfError($itemdata);
+		return (!$errorchk) ? $itemdata: $errorchk;
+	}
+	
+
+	/**
+	* Check if the JSON is an error result
+	* 
+	* @param $data		XML Data of Char
+	* @return error code
+	*/
+	protected function CheckIfError($data){
+		$status	= (isset($data['status'])) ? $data['status'] : false;
+		$reason	= (isset($data['reason'])) ? $data['reason'] : false;
+		$error = '';
+		if($status){
+			return array('status'=>$status,'reason'=>$reason);
+		}else{
+			return false;
+		}
 	}
 
 	/**
@@ -203,23 +256,12 @@ class PHPArmory
 	}
 
 	/**
-	* Output a value or 0 for int, value or '' for string
-	* 
-	* @param $input 
-	* @param $type		int/string
-	* @return string/int output
-	*/
-	public function ValueOrNull($input, $type='int'){
-		return ($input) ? $input : (($type == 'int') ? 0 : '');
-	}
-
-	/**
 	* Convert from Armory ID to EQDKP Id or reverse
 	* 
 	* @param $name			name/id to convert
 	* @param $type			int/string?
-	* @param $cat				category (classes, races, months)
-	* @param $ssw				if set, convert from eqdkp id to armory id
+	* @param $cat			category (classes, races, months)
+	* @param $ssw			if set, convert from eqdkp id to armory id
 	* @return string/int output
 	*/
 	public function ConvertID($name, $type, $cat, $ssw=''){
@@ -249,36 +291,9 @@ class PHPArmory
 	}
 
 	/**
-	* Check if Armory is online or not
-	* 
-	* @param $url URL to check if online 
-	* @return true/array with error information
-	*/
-	public function CheckOnlineStatus($url='wowarmory.com'){
-		if (@fsockopen($url, 80, $errno, $errstr, 30)){
-			return array($errstr,$errno);
-		}else{
-			return true;
-		}
-	}
-
-	/**
-	* Convert Armory Date in Timestamp
-	* 
-	* @param $armdate Input Date
-	* @return Timestamp
-	*/
-	public function Date2Timestamp($armdate){
-		$tmpdate		= explode(" ", trim($armdate));
-		$datenames		= array_flip($this->language('time_monthnames'));
-		$datename		= ($datenames[$tmpdate[1]]) ? ($datenames[$tmpdate[1]]+1) : $tmpdate[1];
-		return strtotime(substr($tmpdate[2].'-'.$datename.'-'.$tmpdate[0], 0, -1));
-	}
-
-	/**
 	* Write JSON to Cache
 	* 
-	* @param	$json			XML string
+	* @param	$json		XML string
 	* @param	$filename	filename of the cache file
 	* @return --
 	*/
@@ -315,28 +330,23 @@ class PHPArmory
 	* @param $url URL to Download
 	* @return json
 	*/
-	protected function read_url($url, $lang=''){
-	 	global $urlreader, $eqdkp_root_path;
-		if($lang){
-			$this->armoryLang = $lang;
-		}
+	protected function read_url($url){
+		global $urlreader, $eqdkp_root_path;
 		if(!is_object($urlreader)){
 			$mpath = ($eqdkp_root_path) ? $eqdkp_root_path.'core/': '';
 			include($mpath.'urlreader.class.php');
 			$urlreader	= new urlreader();
 		}
-		return $urlreader->GetURL($url, $this->armoryLang);
+		return $urlreader->GetURL($url, '');
 	}
 
 	/**
-	* Generate a hidden input field
+	* Check if an error occured
 	* 
-	* @param	$name		name of the field
-	* @param	$input	Value of the field
-	* @return input field
+	* @return error
 	*/
-	public function genHiddenInput($name, $input){
-		return "<input name='".$name."' value=\"".$input."\" type='hidden' />\n";
+	public function CheckError(){
+		return ($this->error) ? $this->error : false;
 	}
 }
 ?>
