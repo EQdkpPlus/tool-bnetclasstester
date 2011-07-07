@@ -27,6 +27,7 @@ if($_GET['info'] == 'true'){
 // fallback config
 $tmp_servername	= (@$_GET['realm'])		? urldecode(stripslashes($_GET['realm']))	: "Antonidas,Mal'Ganis";
 $tmp_force		= (@$_GET['force'])		? true										: false;
+$tmp_loc		= (@$_GET['loc'])		? urldecode($_GET['loc'])					: "eu";
 
 $output = '';
 
@@ -41,7 +42,7 @@ $urlreader	= new urlreader();
 include_once('classes/armory.class.php');
 
 $armory		= new bnetArmory();
-$armory->setSettings(array('loc'=>$tmp_loc, 'lang'=> $tmp_language));
+$armory->setSettings(array('loc'=>$tmp_loc));
 $servernames = explode(",", $tmp_servername);
 $testdata	= $armory->realm($servernames, $tmp_force);
 $get_method	= ($urlreader->get_method()) ? $urlreader->get_method() : 'Cached';

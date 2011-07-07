@@ -201,9 +201,9 @@ class bnetArmory
 	public function realm($realms, $force=false){
 		$realms = (is_array($realms)) ? $realms : array();
 		$wowurl = $this->getServerLink().'/api/wow/realm/status?realms='.implode(",",$realms);
-		if(!$json	= $this->get_CachedJSON('realmdata_'.$realm, $force)){
+		if(!$json	= $this->get_CachedJSON('realmdata_'.implode("",$realms), $force)){
 			$json	= $this->read_url($wowurl);
-			$this->CacheJSON($json, 'realmdata_'.$realm);
+			$this->CacheJSON($json, 'realmdata_'.implode("",$realms));
 		}
 		$realmdata	= json_decode($json, true);
 		$errorchk	= $this->CheckIfError($realmdata);
