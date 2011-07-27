@@ -4,7 +4,7 @@
  * License:		Creative Commons - Attribution-Noncommercial-Share Alike 3.0 Unported
  * Link:		http://creativecommons.org/licenses/by-nc-sa/3.0/
  * -----------------------------------------------------------------------
- * Began:		2007
+ * Began:		2011
  * Date:		$Date$
  * -----------------------------------------------------------------------
  * @author		$Author$
@@ -77,14 +77,18 @@ class bnetArmory
 	* @param $lang		Which language to import
 	* @return bool
 	*/
-	public function __construct($lang='en_en'){
-		global $pcache, $user;
-		$this->pcache		= $pcache;
+	public function __construct($locale='en'){
+		global $pfh, $user;
+		$this->pfh		= $pfh;
+		$this->locale	= $locale;
 	}
 
 	public function setSettings($setting){
 		if(isset($setting['loc'])){
 			$this->serverloc	= $setting['loc'];
+		}
+		if(isset($setting['locale'])){
+			$this->locale	= $setting['locale'];
 		}
 	}
 
@@ -299,8 +303,8 @@ class bnetArmory
 	*/
 	protected function CacheJSON($json, $filename){
 		if($this->caching){
-			if(is_object($this->pcache)){
-				$this->pcache->putContent($this->pcache->FolderPath('armory', 'cache', false).md5($filename), $json);
+			if(is_object($this->pfh)){
+				$this->pfh->putContent($this->pfh->FolderPath('armory', 'cache', false).md5($filename), $json);
 			}else{
 				file_put_contents('data/'.md5($filename), $json);
 			}
@@ -317,7 +321,7 @@ class bnetArmory
 	protected function get_CachedJSON($filename, $force=false){
 		if(!$this->caching){return '';}
 		$data_ctrl = false;
-		$rfilename	= (is_object($this->pcache)) ? $this->pcache->FolderPath('armory', 'cache').md5($filename) : 'data/'.md5($filename);
+		$rfilename	= (is_object($this->pfh)) ? $this->pfh->FolderPath('armory', 'cache').md5($filename) : 'data/'.md5($filename);
 		if(is_file($rfilename)){
 			$data_ctrl	= (!$force && (filectime($rfilename)+(3600*$this->cachingtime)) > time()) ? true : false;
 		}
