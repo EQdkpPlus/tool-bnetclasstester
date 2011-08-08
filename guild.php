@@ -1,17 +1,17 @@
 <?php
  /*
- * Project:     eqdkpPLUS Libraries: Armory Class Tester
- * License:     Creative Commons - Attribution-Noncommercial-Share Alike 3.0 Unported
- * Link:		    http://creativecommons.org/licenses/by-nc-sa/3.0/
+ * Project:		EQdkp-Plus
+ * License:		Creative Commons - Attribution-Noncommercial-Share Alike 3.0 Unported
+ * Link:		http://creativecommons.org/licenses/by-nc-sa/3.0/
  * -----------------------------------------------------------------------
- * Began:       2007
- * Date:        $Date$
+ * Began:		2010
+ * Date:		$Date$
  * -----------------------------------------------------------------------
- * @author      $Author$
- * @copyright   2007 - 2010 Simon (Wallenium) Wallmann
- * @link        http://eqdkp-plus.com
- * @package     libraries:armory
- * @version     $Rev$
+ * @author		$Author$
+ * @copyright	2006-2011 EQdkp-Plus Developer Team
+ * @link		http://eqdkp-plus.com
+ * @package		eqdkp-plus
+ * @version		$Rev$
  * 
  * $Id$
  */
@@ -35,7 +35,7 @@ $output = '';
 require_once('classes/plus/urlreader.class.php');
 require_once('classes/plus/core.functions.php');
 $urlreader	= new urlreader();
-include_once('classes/armory.class.php');
+include_once('objects/bnet_armory.class.php');
 
 $tmp_guild		= (@$_GET['guild'])		? urldecode($_GET['guild'])					: 'Die Freien';
 $tmp_servername	= (@$_GET['realm'])		? urldecode(stripslashes($_GET['realm']))	: "Antonidas";
@@ -44,7 +44,7 @@ $tmp_force		= (@$_GET['force'])		? true										: false;
 //$min_level		= (@$_GET['level']) 	? urldecode($_GET['level'])					: 20;
 //$cclass			= (@$_GET['class'])		? urldecode($_GET['class'])					: '';
 
-$armory		= new bnetArmory();
+$armory		= new bnet_armory();
 $armory->setSettings(array('loc'=>$tmp_loc));
 $dataarry 	= $armory->guild($tmp_guild, $tmp_servername, $tmp_force);
 $get_method	= ($urlreader->get_method()) ? $urlreader->get_method() : 'Cached';

@@ -4,7 +4,7 @@
  * License:		Creative Commons - Attribution-Noncommercial-Share Alike 3.0 Unported
  * Link:		http://creativecommons.org/licenses/by-nc-sa/3.0/
  * -----------------------------------------------------------------------
- * Began:		2011
+ * Began:		2010
  * Date:		$Date$
  * -----------------------------------------------------------------------
  * @author		$Author$
@@ -39,9 +39,9 @@ require_once('classes/plus/core.functions.php');
 $urlreader	= new urlreader();
 
 // load the armory class
-include_once('classes/armory.class.php');
+include_once('objects/bnet_armory.class.php');
 
-$armory		= new bnetArmory();
+$armory		= new bnet_armory();
 $armory->setSettings(array('loc'=>$tmp_loc));
 $servernames = explode(",", $tmp_servername);
 $testdata	= $armory->realm($servernames, $tmp_force);
