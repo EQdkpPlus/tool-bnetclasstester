@@ -1,39 +1,50 @@
 <?php
  /*
- * Project:     EQdkp-Plus
- * License:     Creative Commons - Attribution-Noncommercial-Share Alike 3.0 Unported
- * Link:				http://creativecommons.org/licenses/by-nc-sa/3.0/
+ * Project:		EQdkp-Plus
+ * License:		Creative Commons - Attribution-Noncommercial-Share Alike 3.0 Unported
+ * Link:		http://creativecommons.org/licenses/by-nc-sa/3.0/
  * -----------------------------------------------------------------------
- * Began:       11.01.2008
- * Date:        $Date: 2010-05-29 17:52:31 +0200 (Sat, 29 May 2010) $
+ * Began:		2007
+ * Date:		$Date: 2011-08-08 12:30:39 +0200 (Mon, 08 Aug 2011) $
  * -----------------------------------------------------------------------
- * @author      $Author: wallenium $
- * @copyright   2006-2010 EQdkp-Plus Developer Team
- * @link        http://eqdkp-plus.com
- * @package     eqdkp-plus
- * @version     $Rev: 7936 $
- *
- * $Id: urlreader.class.php 7936 2010-05-29 15:52:31Z wallenium $
- *
- * URL Reader Class initially written by Stefan "Corgan" Knaak
- * merged with import code of Armory Import library module by WalleniuM 
+ * @author		$Author: wallenium $
+ * @copyright	2006-2011 EQdkp-Plus Developer Team
+ * @link		http://eqdkp-plus.com
+ * @package		eqdkp-plus
+ * @version		$Rev: 10924 $
+ * 
+ * $Id: urlreader.class.php 10924 2011-08-08 10:30:39Z wallenium $
  */
 
-
 if ( !defined('EQDKP_INC') ){
-    header('HTTP/1.0 404 Not Found');exit;
+	header('HTTP/1.0 404 Not Found');exit;
 }
 
 class urlreader
 {
-	private $user_agent				= 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.2) Gecko/20070220 Firefox/2.0.0.2';		// User Agent
-	private $timeout					= array(
-																'curl'			=> 10,		// Timeout for curl
-																'url_check'	=> 5,			// Timeout for Url check
-															); 				
-	private $checkURL_first 	= false;									// Should we check the server first, bevor we try to get the url
-	private $fetch_method			= '';
-	
+	private $useragent			= 'EQDKP-PLUS (http://www.eqdkp-plus.com)';		// User Agent
+	private $timeout			= array('curl'=> 10);							// Timeout for curl
+	private $methods			= array('curl','file_gets','fopen');			// available function methods
+	private $method				= '';											// the selected method
+
+	public function get_method(){
+		return $this->method;
+	}
+
+	public function __construct($method=false){
+		if($method){
+			$this->method = $method;
+		}else{
+			foreach($this->methods as $methods){
+				if(!$this->check_function($methods)){
+					continue;
+				}
+				$this->method = $methods;
+				break;
+			}
+		}
+	}
+
 	/**
 	 * Return the Data
 	 * Checks all given methods to get the date from the url
@@ -41,44 +52,8 @@ class urlreader
 	 * @param String $geturl
 	 * @return string
 	 */
-	public function GetURL($geturl, $language='en_en')
-	{
-		$ret_val = null;
-		
-		// Check the language and bring it to the format "de_de"
-		$language = (strlen($language) == 5) ? $language : $language.'_'.$language;
-		
-		//check if accessible, if it is not available, return NULL
-		if ($this->checkURL_first)
-		{
-			if (!$this->Check_Link($geturl))
-			{
-				return $ret_val;
-			}
-		}
-		
-		/*****************************
-		 * FETCH DATA
-		 *****************************/
-		$ret_val = $this->Get_CURL($geturl, $language);										// First attempt: Curl
-
-		if (!$ret_val){
-			$ret_val = $this->Get_file_get_contents($geturl, $language);		// No Data with Curl, try Get_File..
-		}
-
-		if (!$ret_val){
-			$ret_val = $this->Get_fsockopen($geturl, $language);						// No Data with Curl or Get_File.., lets try fsockopen
-		}
-		
-		if (!$ret_val){
-			$ret_val = 'ERROR';																							// No method worked, return Error!
-		}
-		
-		return $ret_val;
-	}
-	
-	public function get_method(){
-		return $this->fetch_method;
+	public function GetURL($geturl, $params=false){
+		return $this->{'get_'.$this->method}($geturl, $params);
 	}
 
 	/**
@@ -87,23 +62,29 @@ class urlreader
 	 * @param string $geturl
 	 * @return string
 	 */
-	private function Get_CURL($geturl, $language)
-	{
-		$getdata = null;
-		if($this->Check_Method('curl'))
-		{
-			$ch = @curl_init($geturl);
-			@curl_setopt($ch, CURLOPT_COOKIE, "cookieLangId=".$language.";");
-  		@curl_setopt($ch, CURLOPT_USERAGENT, $this->user_agent);
-  		@curl_setopt($ch, CURLOPT_TIMEOUT, $this-> timeout['curl']);
-  		if (!(@ini_get("safe_mode") || @ini_get("open_basedir"))) {
-      	@curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-      }
-  		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-			$getdata = @curl_exec($ch);
-			curl_close($ch);
+	private function get_curl($geturl, $options){
+		foreach ($params as $parameter => $value) {
+			$pairs[] = (is_array($value)) ? $parameter.'='.implode(',', $value) : $parameter.'='.$value;
+
 		}
-		$this->fetch_method = 'curl';
+
+		// curl options
+		$curlOptions = array(
+			CURLOPT_URL				=> $geturl,
+			CURLOPT_USERAGENT		=> $this->useragent,
+			CURLOPT_TIMEOUT			=> $this->timeout['curl'],
+			CURLOPT_ENCODING		=> "gzip",
+			CURLOPT_FOLLOWLOCATION	=> true,
+			CURLOPT_RETURNTRANSFER	=> true,
+			CURLOPT_SSL_VERIFYHOST	=> false,
+			CURLOPT_SSL_VERIFYPEER	=> false,
+			CURLOPT_VERBOSE			=> false,
+			//CURLOPT_HTTPHEADER		=> 
+		);
+		$curl = curl_init();
+		curl_setopt_array($curl, $curlOptions);
+		$getdata = curl_exec($curl);
+		curl_close($curl);
 		return $getdata;
 	}
 
@@ -113,107 +94,68 @@ class urlreader
 	 * @param string $geturl
 	 * @return string
 	 */
-	private function Get_file_get_contents($geturl, $language)
-	{	
-		$getdata = null;
-		if ($this->Check_Method('fgetcontents'))
-		{
-			// set the useragent first. if not, you'll get the source....
-			if(function_exists('ini_set')){
-				@ini_set('user_agent', $this->user_agent);
-			}else{
-				$_SERVER["HTTP_USER_AGENT"] = $this->user_agent;
-			}
-		
-			// its a bit tricky to get the cookie to work: http://www.testticker.de/tipps/article20060414003.aspx
-			$opts = array (
-                  'http'=>array (
-                  'method' => 'GET',
-                  'header' => "Cookie: cookieLangId=".$language.";\r\n"
-                    )
-      				);
-      $context = @stream_context_create($opts);
-			$getdata = @file_get_contents($geturl, false, $context);
+	private function get_file_gets($geturl, $params){	
+		// set the useragent first. if not, you'll get the source....
+		if(function_exists('ini_set')){
+			@ini_set('user_agent', $this->useragent);
+		}else{
+			$_SERVER["HTTP_USER_AGENT"] = $this->useragent;
 		}
-		$this->fetch_method = 'file_gets';
+
+		// its a bit tricky to get the cookie to work: http://www.testticker.de/tipps/article20060414003.aspx
+		$opts = array (
+			'http'	=>array (
+				'method'	=> 'GET',
+				'header'	=> "Cookie: cookieLangId=".$language.";\r\n"
+			)
+		);
+		$context	= @stream_context_create($opts);
+		$getdata	= @file_get_contents($geturl, false, $context);
 		return $getdata;
 	}
-	
+
 	/**
 	 * Try to get the data from the URL via the fsockopen function
 	 *
 	 * @param string $geturl
 	 * @return string
 	 */
-	private function Get_fsockopen($geturl, $language)
-	{
-		$cheader   = array("http" => array ("header" => "Cookie: cookieLangId=".$language.";\r\n"));
-		$url_array = parse_url($geturl);
-		$fp = fsockopen($url_array['host'], 80, $errno, $errstr, 5);
-
-		if ($fp)
-		{
-			$out  = "GET " .$url_array['path']."?".$url_array['query']." HTTP/1.0\r\n";
-			$out .= "Host: ".$url_array['host']." \r\n";
-			$out .= "User-Agent: ".$this->user_agent;
-			$out .= "Connection: Close\r\n";
-			$out .= "Cookie: ".$cookie."\r\n";
-			$out .= "\r\n";
+	private function Get_fopen($geturl, $params){
+		$url_array	= parse_url($geturl);
+		$getdata = '';
+		if (isset($url_array['host']) AND $fp = @fsockopen($url_array['host'], 80, $errno, $errstr, 5)){
+			$out	 = "GET " .$url_array['path']."?".((isset($url_array['query'])) ? $url_array['query'] : '')." HTTP/1.0\r\n";
+			$out	.= "Host: ".$url_array['host']." \r\n";
+			$out	.= "User-Agent: ".$this->useragent;
+			$out	.= "Connection: Close\r\n";
+			$out	.= "Cookie: cookieLangId=".$language.";\r\n";
+			$out	.= "\r\n";
 			fwrite($fp, $out);
 
 			// Get rid of the HTTP headers
-			while ($fp && !feof($fp))
-			{
+			while ($fp && !feof($fp)){
 				$headerbuffer = fgets($fp, 1024);
-				if (urlencode($headerbuffer) == "%0D%0A")
-				{
+				if (urlencode($headerbuffer) == "%0D%0A"){
 					// We've reached the end of the headers
 					break;
 				}
 			}
-			$getdata = '';
 			// Read the raw data from the socket in 1kb chunks
-			while (!feof($fp))
-			{
+			while (!feof($fp)){
 				$getdata .= fgets($fp, 1024);
 			}
 			fclose($fp);
 		}
-		$this->fetch_method = 'fopen';
 		return $getdata;
 	}
-	
-	public function Check_Method($method)
-	{
+
+	private function check_function($method){
 		switch($method){
-			case 'curl':					$func_ex = 'curl_init';					break;
-			case 'fgetcontents':	$func_ex = 'file_get_contents';	break;
+			case 'curl':			$func_ex = 'curl_init';			break;
+			case 'file_gets':		$func_ex = 'file_get_contents';	break;
+			case 'fopen':			$func_ex = 'fgets';				break;
 			default: $func_ex =$method;
 		}
 		return (function_exists($func_ex)) ? true : false;
-	}
-	
-	/**
-	 * Check_Link()
-	 * Check if the Host of the given URL is accessible
-	 *
-	 * @param String $url
-	 * @return Boolean
-	 */
-	private function Check_Link($url)
-	{
-		if($url)
-		{
-			$_url = parse_url($url,PHP_URL_HOST);
-			$dat = @fsockopen($_url, 80, $errno, $errstr, $this-> timeout['url_check']);
-		}
-
-		if($dat)
-		{
-			return true;
-			fclose($dat);
-		} else {
-			return false;
-		}
 	}
 }

@@ -28,6 +28,7 @@ if($_GET['info'] == 'true'){
 $tmp_charname	= (@$_GET['character'])	? urldecode($_GET['character'])				: "corgan";
 $tmp_servername	= (@$_GET['realm'])		? urldecode(stripslashes($_GET['realm']))	: "Antonidas";
 $tmp_loc		= (@$_GET['loc'])		? urldecode($_GET['loc'])					: "eu";
+$tmp_language	= (@$_GET['lang'])		? urldecode($_GET['lang'])					: "de_DE";
 $tmp_force		= (@$_GET['force'])		? true										: false;
 
 $output = '';
@@ -42,8 +43,7 @@ $urlreader	= new urlreader();
 // load the armory class
 include_once('objects/bnet_armory.class.php');
 
-$armory		= new bnet_armory();
-$armory->setSettings(array('loc'=>$tmp_loc));
+$armory		= new bnet_armory($tmp_loc, $tmp_language);
 $testdata	= $armory->character($tmp_charname, $tmp_servername, $tmp_force);
 $get_method	= ($urlreader->get_method()) ? $urlreader->get_method() : 'Cached';
 

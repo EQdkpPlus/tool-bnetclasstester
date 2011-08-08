@@ -40,12 +40,12 @@ include_once('objects/bnet_armory.class.php');
 $tmp_guild		= (@$_GET['guild'])		? urldecode($_GET['guild'])					: 'Die Freien';
 $tmp_servername	= (@$_GET['realm'])		? urldecode(stripslashes($_GET['realm']))	: "Antonidas";
 $tmp_loc		= (@$_GET['loc'])		? urldecode($_GET['loc'])					: 'eu';
+$tmp_language	= (@$_GET['lang'])		? urldecode($_GET['lang'])					: "de_DE";
 $tmp_force		= (@$_GET['force'])		? true										: false;
 //$min_level		= (@$_GET['level']) 	? urldecode($_GET['level'])					: 20;
 //$cclass			= (@$_GET['class'])		? urldecode($_GET['class'])					: '';
 
-$armory		= new bnet_armory();
-$armory->setSettings(array('loc'=>$tmp_loc));
+$armory		= new bnet_armory($tmp_loc, $tmp_language);
 $dataarry 	= $armory->guild($tmp_guild, $tmp_servername, $tmp_force);
 $get_method	= ($urlreader->get_method()) ? $urlreader->get_method() : 'Cached';
 
