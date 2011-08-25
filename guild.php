@@ -81,6 +81,7 @@ $output .= '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http
 $output .= "<b>battle.net Armory Class Tester - GUILD</b> ( bnetArmory [".$armory->getVersion()."]), connection method: <span style='color:red;'>".$get_method."</span><br/><br/>";
 
 // Header
+$output .= '<img src="'.$armory->guildTabard($dataarry['emblem'], $dataarry['side'], $dataarry['name']).'" alt="guild tabard" /><br/>';
 $output .= '<div class="ui-grid ui-widget ui-widget-content ui-corner-all">
 				<div class="ui-grid-header ui-widget-header ui-corner-top">Guild Members of <a href="'.$armory->bnlink('', $tmp_servername, 'guild', $tmp_guild).'" target="top">"'.$tmp_guild.'"</a> on realm "'.$tmp_servername.'"</div>';
 $output .= '<table class="ui-grid-content ui-widget-content">';

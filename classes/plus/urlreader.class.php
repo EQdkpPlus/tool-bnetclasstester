@@ -4,7 +4,7 @@
  * License:		Creative Commons - Attribution-Noncommercial-Share Alike 3.0 Unported
  * Link:		http://creativecommons.org/licenses/by-nc-sa/3.0/
  * -----------------------------------------------------------------------
- * Began:		2007
+ * Began:		2011
  * Date:		$Date: 2011-08-08 12:30:39 +0200 (Mon, 08 Aug 2011) $
  * -----------------------------------------------------------------------
  * @author		$Author: wallenium $
@@ -52,7 +52,7 @@ class urlreader
 	 * @param String $geturl
 	 * @return string
 	 */
-	public function GetURL($geturl, $params=false){
+	public function fetch($geturl, $params=false){
 		return $this->{'get_'.$this->method}($geturl, $params);
 	}
 
@@ -65,7 +65,6 @@ class urlreader
 	private function get_curl($geturl, $options){
 		foreach ($params as $parameter => $value) {
 			$pairs[] = (is_array($value)) ? $parameter.'='.implode(',', $value) : $parameter.'='.$value;
-
 		}
 
 		// curl options
@@ -102,7 +101,6 @@ class urlreader
 			$_SERVER["HTTP_USER_AGENT"] = $this->useragent;
 		}
 
-		// its a bit tricky to get the cookie to work: http://www.testticker.de/tipps/article20060414003.aspx
 		$opts = array (
 			'http'	=>array (
 				'method'	=> 'GET',
@@ -120,7 +118,7 @@ class urlreader
 	 * @param string $geturl
 	 * @return string
 	 */
-	private function Get_fopen($geturl, $params){
+	private function get_fopen($geturl, $params){
 		$url_array	= parse_url($geturl);
 		$getdata = '';
 		if (isset($url_array['host']) AND $fp = @fsockopen($url_array['host'], 80, $errno, $errstr, 5)){
@@ -157,5 +155,10 @@ class urlreader
 			default: $func_ex =$method;
 		}
 		return (function_exists($func_ex)) ? true : false;
+	}
+
+	// DEPRECATED
+	public function GetURL($geturl, $params=false){
+		return $this->fetch($geturl, $params);
 	}
 }

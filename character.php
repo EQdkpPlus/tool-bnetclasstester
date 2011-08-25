@@ -76,6 +76,10 @@ if($_GET['array'] == 'true'){
 	d($testdata);die();
 }
 
+if($_GET['achievementdata'] == 'true'){
+	d($armory->getdata_achievements('character', $tmp_force));die();
+}
+
 $output .= "<b>battle.net Armory Class Tester - CHARACTER</b> ( bnetArmory [".$armory->getVersion()."]), connection method: <span style='color:red;'>".$get_method."</span><br/><br/>";
 
 if(!isset($testdata['status'])){
