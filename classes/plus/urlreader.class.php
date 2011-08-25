@@ -52,8 +52,8 @@ class urlreader
 	 * @param String $geturl
 	 * @return string
 	 */
-	public function fetch($geturl, $params=false){
-		return $this->{'get_'.$this->method}($geturl, $params);
+	public function fetch($geturl, $header=''){
+		return $this->{'get_'.$this->method}($geturl, $header);
 	}
 
 	/**
@@ -62,12 +62,7 @@ class urlreader
 	 * @param string $geturl
 	 * @return string
 	 */
-	private function get_curl($geturl, $options){
-		foreach ($params as $parameter => $value) {
-			$pairs[] = (is_array($value)) ? $parameter.'='.implode(',', $value) : $parameter.'='.$value;
-		}
-
-		// curl options
+	private function get_curl($geturl, $header){
 		$curlOptions = array(
 			CURLOPT_URL				=> $geturl,
 			CURLOPT_USERAGENT		=> $this->useragent,
@@ -78,7 +73,8 @@ class urlreader
 			CURLOPT_SSL_VERIFYHOST	=> false,
 			CURLOPT_SSL_VERIFYPEER	=> false,
 			CURLOPT_VERBOSE			=> false,
-			//CURLOPT_HTTPHEADER		=> 
+			CURLOPT_HTTPAUTH		=> CURLAUTH_ANY,
+			CURLOPT_HTTPHEADER		=> ((is_array($header) && count($header) > 0) ? $header : array())
 		);
 		$curl = curl_init();
 		curl_setopt_array($curl, $curlOptions);
@@ -93,7 +89,7 @@ class urlreader
 	 * @param string $geturl
 	 * @return string
 	 */
-	private function get_file_gets($geturl, $params){	
+	private function get_file_gets($geturl, $header){	
 		// set the useragent first. if not, you'll get the source....
 		if(function_exists('ini_set')){
 			@ini_set('user_agent', $this->useragent);
@@ -104,7 +100,7 @@ class urlreader
 		$opts = array (
 			'http'	=>array (
 				'method'	=> 'GET',
-				'header'	=> "Cookie: cookieLangId=".$language.";\r\n"
+				'header'	=> ((is_array($header) && count($header) > 0) ? implode("\r\n", $header): '')
 			)
 		);
 		$context	= @stream_context_create($opts);
@@ -118,7 +114,7 @@ class urlreader
 	 * @param string $geturl
 	 * @return string
 	 */
-	private function get_fopen($geturl, $params){
+	private function get_fopen($geturl, $header){
 		$url_array	= parse_url($geturl);
 		$getdata = '';
 		if (isset($url_array['host']) AND $fp = @fsockopen($url_array['host'], 80, $errno, $errstr, 5)){
@@ -126,7 +122,7 @@ class urlreader
 			$out	.= "Host: ".$url_array['host']." \r\n";
 			$out	.= "User-Agent: ".$this->useragent;
 			$out	.= "Connection: Close\r\n";
-			$out	.= "Cookie: cookieLangId=".$language.";\r\n";
+			$out	.= ((is_array($header) && count($header) > 0) ? implode("\r\n", $header): '');
 			$out	.= "\r\n";
 			fwrite($fp, $out);
 
@@ -158,7 +154,7 @@ class urlreader
 	}
 
 	// DEPRECATED
-	public function GetURL($geturl, $params=false){
-		return $this->fetch($geturl, $params);
+	public function GetURL($geturl, $header=array()){
+		return $this->fetch($geturl, $header);
 	}
 }

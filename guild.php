@@ -53,6 +53,10 @@ if($_GET['array'] == 'true'){
 	d($dataarry);die();
 }
 
+if($_POST['charimg'] == 'true'){
+	die('<img src="'.$armory->characterIcon($chars['character']['thumbnail']).'" alt="charicon" />');
+}
+
 $output .= '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 	<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
 		<head>
@@ -96,7 +100,8 @@ $output .= '</tr>';
 // get Members
 foreach($dataarry['members'] as $chars){
 	$output .= "<tr>";
-	$output .= '<td width="400" class="ui-widget-content left"><img src="'.$armory->characterIcon($chars['character']['thumbnail']).'" alt="charicon" /> '.$chars['character']['name'].'</td>';
+	$charimage = $armory->characterIcon($chars['character']['thumbnail']);
+	$output .= '<td width="400" class="ui-widget-content left"><img src="'.(($charimage) ? $charimage : 'images/default_avatar.png').'" alt="charicon" /> '.$chars['character']['name'].'</td>';
 	$output .= '<td width="50" class="ui-widget-content">'.$chars['character']['class'].'</td>';
 	$output .= '<td width="50" class="ui-widget-content">'.$chars['character']['race'].'</td>';
 	$output .= '<td width="150" class="ui-widget-content">'.$chars['character']['level'].'</td>';
