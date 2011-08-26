@@ -93,7 +93,7 @@ if(!isset($testdata['status'])){
 				</tr>';
 	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">Icon</td>
-					<td width="580" class="ui-widget-content left"><img src="'.$armory->characterIcon($testdata['thumbnail']).'" alt="charicon" /></td>
+					<td width="580" class="ui-widget-content left"><img src="'.$armory->characterIcon($testdata).'" alt="charicon" /></td>
 				</tr>';
 	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">Name</td>

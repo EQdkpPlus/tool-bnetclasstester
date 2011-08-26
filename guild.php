@@ -100,7 +100,7 @@ $output .= '</tr>';
 // get Members
 foreach($dataarry['members'] as $chars){
 	$output .= "<tr>";
-	$charimage = $armory->characterIcon($chars['character']['thumbnail']);
+	$charimage = $armory->characterIcon($chars['character']);
 	$output .= '<td width="400" class="ui-widget-content left"><img src="'.(($charimage) ? $charimage : 'images/default_avatar.png').'" alt="charicon" /> '.$chars['character']['name'].'</td>';
 	$output .= '<td width="50" class="ui-widget-content">'.$chars['character']['class'].'</td>';
 	$output .= '<td width="50" class="ui-widget-content">'.$chars['character']['race'].'</td>';
