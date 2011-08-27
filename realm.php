@@ -35,9 +35,9 @@ $output = '';
 // init the required plus functions
 $eqdkp_root_path = '';
 
-require_once('classes/plus/urlreader.class.php');
+require_once('classes/plus/plus_url_fetcher.class.php');
 require_once('classes/plus/core.functions.php');
-$urlreader	= new urlreader();
+$puf	= new puf();
 
 // load the armory class
 include_once('objects/bnet_armory.class.php');
@@ -45,7 +45,7 @@ include_once('objects/bnet_armory.class.php');
 $armory		= new bnet_armory($tmp_loc, $tmp_language);
 $servernames = explode(",", $tmp_servername);
 $testdata	= $armory->realm($servernames, $tmp_force);
-$get_method	= ($urlreader->get_method()) ? $urlreader->get_method() : 'Cached';
+$get_method	= ($puf->get_method()) ? $puf->get_method() : 'Cached';
 
 $output .= "<b>battle.net Armory Class Tester - REALM</b> ( bnetArmory [".$armory->getVersion()."]), connection method: <span style='color:red;'>".$get_method."</span><br/><br/>";
 

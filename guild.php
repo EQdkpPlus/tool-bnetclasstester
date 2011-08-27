@@ -32,9 +32,9 @@ $wow_language	= "de_de";
 $min_level		= 20;
 
 $output = '';
-require_once('classes/plus/urlreader.class.php');
+require_once('classes/plus/plus_url_fetcher.class.php');
 require_once('classes/plus/core.functions.php');
-$urlreader	= new urlreader();
+$puf	= new puf();
 include_once('objects/bnet_armory.class.php');
 
 $tmp_guild		= (@$_GET['guild'])		? urldecode($_GET['guild'])					: 'Die Freien';
@@ -47,7 +47,7 @@ $tmp_force		= (@$_GET['force'])		? true										: false;
 
 $armory		= new bnet_armory($tmp_loc, $tmp_language);
 $dataarry 	= $armory->guild($tmp_guild, $tmp_servername, $tmp_force);
-$get_method	= ($urlreader->get_method()) ? $urlreader->get_method() : 'Cached';
+$get_method	= ($puf->get_method()) ? $puf->get_method() : 'Cached';
 
 if($_GET['array'] == 'true'){
 	d($dataarry);die();
