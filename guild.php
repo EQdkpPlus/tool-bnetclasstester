@@ -34,7 +34,7 @@ $min_level		= 20;
 $output = '';
 require_once('classes/plus/plus_url_fetcher.class.php');
 require_once('classes/plus/core.functions.php');
-$puf	= new puf();
+$puf	= new urlFetcher();
 include_once('objects/bnet_armory.class.php');
 
 $tmp_guild		= (@$_GET['guild'])		? urldecode($_GET['guild'])					: 'Die Freien';

@@ -20,7 +20,7 @@ if ( !defined('EQDKP_INC') ){
 	header('HTTP/1.0 404 Not Found');exit;
 }
 
-class urlreader
+class urlFetcher
 {
 	private $useragent			= 'EQDKP-PLUS (http://www.eqdkp-plus.com)';		// User Agent
 	private $timeout			= array('curl'=> 10);							// Timeout for curl
@@ -53,6 +53,7 @@ class urlreader
 	 * @return string
 	 */
 	public function fetch($geturl, $header=''){
+		$this->method = ($this->method) ? $this->method : 'fopen';
 		return $this->{'get_'.$this->method}($geturl, $header);
 	}
 
@@ -68,7 +69,6 @@ class urlreader
 			CURLOPT_USERAGENT		=> $this->useragent,
 			CURLOPT_TIMEOUT			=> $this->timeout['curl'],
 			CURLOPT_ENCODING		=> "gzip",
-			CURLOPT_FOLLOWLOCATION	=> true,
 			CURLOPT_RETURNTRANSFER	=> true,
 			CURLOPT_SSL_VERIFYHOST	=> false,
 			CURLOPT_SSL_VERIFYPEER	=> false,
@@ -76,6 +76,9 @@ class urlreader
 			CURLOPT_HTTPAUTH		=> CURLAUTH_ANY,
 			CURLOPT_HTTPHEADER		=> ((is_array($header) && count($header) > 0) ? $header : array())
 		);
+		if (!(@ini_get("safe_mode") || @ini_get("open_basedir"))) {
+			$curlOptions[CURLOPT_FOLLOWLOCATION] = true;
+		}
 		$curl = curl_init();
 		curl_setopt_array($curl, $curlOptions);
 		$getdata = curl_exec($curl);
@@ -157,7 +160,7 @@ class urlreader
 	public function GetURL($geturl, $header=array()){
 		global $pdl;
 		if(is_object($pdl)){
-			pdl->log('deprecated', 'function-GetURL', 'urlreader.class.php', '157', 'urlreader.class.php', '160');
+			$pdl->log('deprecated', 'GetURL()', 'plus_url_fetcher.class.php', '157', 'plus_url_fetcher.class.php', '160');
 		}
 		return $this->fetch($geturl, $header);
 	}
