@@ -75,7 +75,7 @@ $output .= '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http
 if($_GET['array'] == 'true'){
 	d($testdata);die();
 }
-
+#['achievements']
 if($_GET['achievementdata'] == 'true'){
 	d($armory->getdata_achievements('character', $tmp_force));die();
 }
@@ -96,6 +96,10 @@ if(!isset($testdata['status'])){
 					<td width="580" class="ui-widget-content left"><img src="'.$armory->characterIcon($testdata).'" alt="charicon" /></td>
 				</tr>';
 	$output .= '<tr>
+					<td width="220" class="ui-widget-content left">Image</td>
+					<td width="580" class="ui-widget-content left"><img src="'.$armory-> characterImage($testdata).'" alt="charimage" /></td>
+				</tr>';
+	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">Name</td>
 					<td width="580" class="ui-widget-content left"><a href="'.$armory->bnlink($tmp_charname, $tmp_servername, 'char').'">'.$testdata['name'].'</a></td>
 				</tr>';
@@ -114,6 +118,10 @@ if(!isset($testdata['status'])){
 	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">Gender</td>
 					<td width="580" class="ui-widget-content left">'.$armory->ConvertID($testdata['gender'], 'int', 'gender').' [gender-id: '.$testdata['gender'].']</td>
+				</tr>';
+	$output .= '<tr>
+					<td width="220" class="ui-widget-content left">PVP Arena Teams</td>
+					<td width="580" class="ui-widget-content left">'.$testdata['pvp']['arenaTeams'][0]['name'].'</td>
 				</tr>';
 	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">Gilde</td>
