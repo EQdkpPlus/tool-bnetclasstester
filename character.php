@@ -72,6 +72,11 @@ $output .= '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http
 		<body>
 ';
 
+function convert($size){
+	$unit=array('b','kb','mb','gb','tb','pb');
+	return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
+}
+
 if($_GET['array'] == 'true'){
 	d($testdata);die();
 }
@@ -80,7 +85,7 @@ if($_GET['achievementdata'] == 'true'){
 	d($armory->getdata_achievements('character', $tmp_force));die();
 }
 
-$output .= "<b>battle.net Armory Class Tester - CHARACTER</b> ( bnetArmory [".$armory->getVersion()."]), connection method: <span style='color:red;'>".$get_method."</span><br/><br/>";
+$output .= "<b>battle.net Armory Class Tester - CHARACTER</b> ( bnetArmory [".$armory->getVersion()."]), connection method: <span style='color:red;'>".$get_method."</span> <span>Memory: ".convert(memory_get_usage(true))." [".convert(memory_get_peak_usage())."]</span><br/><br/>";
 
 if(!isset($testdata['status'])){
 	$output .= '<div class="ui-grid ui-widget ui-widget-content ui-corner-all">
