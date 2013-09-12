@@ -93,6 +93,10 @@ if(!isset($testdata['status'])){
 					<th class="ui-state-default" width="580">Data</th>
 				</tr>';
 	$output .= '<tr>
+					<td width="220" class="ui-widget-content left">GET Parameters</td>
+					<td width="580" class="ui-widget-content left">teamname [the Voodooclub], teamsize [2v2], realm [Antonidas], loc [eu], lang [de_DE], force [false]</td>
+				</tr>';
+	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">Team name</td>
 					<td width="580" class="ui-widget-content left">'.$testdata['name'].'</td>
 				</tr>';

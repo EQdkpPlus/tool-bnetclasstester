@@ -101,6 +101,10 @@ if(!isset($testdata['status'])){
 					<td width="580" class="ui-widget-content left"><img src="'.$armory->characterIcon($testdata).'" alt="charicon" /></td>
 				</tr>';
 	$output .= '<tr>
+					<td width="220" class="ui-widget-content left">GET Parameters</td>
+					<td width="580" class="ui-widget-content left">character [corgan], realm [Antonidas], loc [eu], lang [de_DE], force [false]</td>
+				</tr>';
+	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">Image</td>
 					<td width="580" class="ui-widget-content left"><img src="'.$armory-> characterImage($testdata).'" alt="charimage" /></td>
 				</tr>';

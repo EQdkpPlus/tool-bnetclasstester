@@ -27,7 +27,7 @@ if($_GET['info'] == 'true'){
 // fallback config
 $tmp_itemid		= (@$_GET['itemid'])	? urldecode($_GET['itemid'])				: 78478;
 $tmp_language	= (@$_GET['lang'])		? urldecode($_GET['lang'])					: "de_DE";
-$tmp_force		= (@$_GET['force'])		? true										: true;
+$tmp_force		= (@$_GET['force'])		? true										: false;
 $tmp_loc		= (@$_GET['loc'])		? urldecode($_GET['loc'])					: "eu";
 
 $output = '';
@@ -86,6 +86,10 @@ if(!isset($testdata['status'])){
 	$output .= '<tr>
 					<th class="ui-state-default" width="220">Field name</th>
 					<th class="ui-state-default" width="580">Data</th>
+				</tr>';
+	$output .= '<tr>
+					<td width="220" class="ui-widget-content left">GET Parameters</td>
+					<td width="580" class="ui-widget-content left">itemid [78478], loc [eu], lang [de_DE], force [false]</td>
 				</tr>';
 	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">Name</td>

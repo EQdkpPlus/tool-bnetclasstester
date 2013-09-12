@@ -49,6 +49,8 @@ $get_method	= ($puf->get_method()) ? $puf->get_method() : 'Cached';
 
 $output .= "<b>battle.net Armory Class Tester - REALM</b> ( bnetArmory [".$armory->getVersion()."]), connection method: <span style='color:red;'>".$get_method."</span><br/><br/>";
 
+$output .= 'GET Parameters: realm [Antonidas], loc [eu], lang [de_DE], force [false]<br/><br/>';
+
 
 if($_GET['array'] == 'true'){
 	d($testdata);die();
