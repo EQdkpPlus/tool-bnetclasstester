@@ -97,6 +97,8 @@ $output .= '<th class="ui-state-default" width="50">Race ID</th>';
 $output .= '<th class="ui-state-default" width="150">Level</th>';
 $output .= '<th class="ui-state-default" width="60">Gender</th>';
 $output .= '<th class="ui-state-default" width="150">Rank</th>';
+$output .= '<th class="ui-state-default" width="150">Realm</th>';
+$output .= '<th class="ui-state-default" width="150">Battlegroup</th>';
 $output .= '</tr>';
 
 // get Members
@@ -109,6 +111,8 @@ foreach($dataarry['members'] as $chars){
 	$output .= '<td width="150" class="ui-widget-content">'.$chars['character']['level'].'</td>';
 	$output .= '<td width="60" class="ui-widget-content">'.$chars['character']['gender'].'</td>';
 	$output .= '<td width="150" class="ui-widget-content">'.$chars['rank'].'</td>';
+	$output .= '<td width="150" class="ui-widget-content">'.$chars['character']['realm'].'</td>';
+	$output .= '<td width="150" class="ui-widget-content">'.$chars['character']['battlegroup'].'</td>';
 	$output .= "</tr>";
 }
 $output .= "</table></div>";
