@@ -53,7 +53,10 @@ if($api_version < '2'){
 }
 
 
-$armory		= new bnet_armory($tmp_loc, $tmp_language, $api_key);
+$armory		= new bnet_armory($tmp_loc, $tmp_language);
+if($api_version > '1'){
+	$armory->setSettings(array('apiKey' => $api_key));
+}
 $testdata	= $armory->character($tmp_charname, $tmp_servername, $tmp_force);
 $get_method	= ($puf->get_method()) ? $puf->get_method() : 'Cached';
 

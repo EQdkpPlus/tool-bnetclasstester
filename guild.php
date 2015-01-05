@@ -48,7 +48,10 @@ if($api_version < '2'){
 	include_once('objects/bnet_armory.class.php');
 }
 
-$armory		= new bnet_armory($tmp_loc, $tmp_language, $api_key);
+$armory		= new bnet_armory($tmp_loc, $tmp_language);
+if($api_version > '1'){
+	$armory->setSettings(array('apiKey' => $api_key));
+}
 $dataarry 	= $armory->guild($tmp_guild, $tmp_servername, $tmp_force);
 $get_method	= ($puf->get_method()) ? $puf->get_method() : 'Cached';
 

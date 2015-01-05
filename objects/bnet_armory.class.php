@@ -1,31 +1,32 @@
 <?php
- /*
- * Project:		EQdkp-Plus
- * License:		Creative Commons - Attribution-Noncommercial-Share Alike 3.0 Unported
- * Link:		http://creativecommons.org/licenses/by-nc-sa/3.0/
- * -----------------------------------------------------------------------
- * Began:		2011
- * Date:		$Date: 2014-11-19 01:05:54 +0100 (Wed, 19 Nov 2014) $
- * -----------------------------------------------------------------------
- * @author		$Author: wallenium $
- * @copyright	2006-2011 EQdkp-Plus Developer Team
- * @link		http://eqdkp-plus.com
- * @package		eqdkp-plus
- * @version		$Rev: 14741 $
- * 
- * $Id: bnet_armory.class.php 14741 2014-11-19 00:05:54Z wallenium $
+/*	Project:	EQdkp-Plus
+ *	Package:	World of Warcraft game package
+ *	Link:		http://eqdkp-plus.eu
  *
- * Based on the new battlenet API, see documentation: http://blizzard.github.com/api-wow-docs/
+ *	Copyright (C) 2006-2015 EQdkp-Plus Developer Team
+ *
+ *	This program is free software: you can redistribute it and/or modify
+ *	it under the terms of the GNU Affero General Public License as published
+ *	by the Free Software Foundation, either version 3 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU Affero General Public License for more details.
+ *
+ *	You should have received a copy of the GNU Affero General Public License
+ *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 if ( !defined('EQDKP_INC') ){
 	header('HTTP/1.0 404 Not Found');exit;
 }
 
-class bnet_armory{
+class bnet_armory {
 
 	private $version		= '6.0.2';
-	private $build			= '$Rev: 14741 $';
+	private $build			= '$Rev$';
 	private $chariconUpdates = 0;
 	private $chardataUpdates = 0;
 	private $ratepersecond	= 100;
@@ -39,6 +40,7 @@ class bnet_armory{
 		'serverloc'				=> 'us',
 		'locale'				=> 'en',
 		'caching'				=> true,
+		'image-caching'			=> true,
 		'caching_time'			=> 24,
 		'apiUrl'				=> '',
 		'apiRenderUrl'			=> '',
@@ -81,50 +83,55 @@ class bnet_armory{
 			'26'	=> 13,		// Pandaren horde
 		),
 		'gender' => array(
-			'0'		=> 'Male',
-			'1'		=> 'Female',
+			'0'		=> 'male',
+			'1'		=> 'female',
 		),
 		'talent'	=> array(
-			0	=> array(
-				'spell_deathknight_bloodpresence',			// DK
-				'spell_nature_starfall',					// Druid
-				'ability_hunter_bestialdiscipline',			// Hunter
-				'spell_holy_magicalsentry',					// Mage
-				'spell_holy_holybolt',						// Paladin
-				'spell_holy_powerwordshield',				// Priest
-				'ability_rogue_eviscerate',					// Rogue
-				'spell_nature_lightning',					// Shaman
-				'spell_shadow_deathcoil',					// Warlock
-				'ability_warrior_savageblow',				// Warrior
-				'spell_monk_brewmaster_spec',				// Monk
-			),
-			1	=> array(
-				'spell_deathknight_frostpresence',			// DK
-				'ability_druid_catform',					// Druid
-				'ability_hunter_focusedaim',				// Hunter
-				'spell_fire_firebolt02',					// Mage
-				'ability_paladin_shieldofthetemplar',		// Paladin
-				'spell_holy_guardianspirit',				// Priest
-				'ability_backstab',							// Rogue
-				'spell_shaman_improvedstormstrike',			// Shaman
-				'spell_shadow_metamorphosis',				// Warlock
-				'ability_warrior_innerrage',				// Warrior
-				'spell_monk_mistweaver_spec',				// Monk
-			),
-			2	=> array(
-				'spell_deathknight_unholypresence',			// DK
-				'ability_racial_bearform',					// Druid
-				'ability_hunter_camouflage',				// Hunter
-				'spell_frost_frostbolt02',					// Mage
-				'spell_holy_auraoflight',					// Paladin
-				'spell_shadow_shadowwordpain',				// Priest
-				'ability_stealth',							// Rogue
-				'spell_nature_magicimmunity',				// Shaman
-				'spell_shadow_rainoffire',					// Warlock
-				'ability_warrior_defensivestance',			// Warrior
-				'spell_monk_windwalker_spec',				// Monk
-			),
-			3	=> array('spell_nature_healingtouch')		// Druid
+			//DK
+			0 => 'spell_deathknight_bloodpresence',
+			1 => 'spell_deathknight_frostpresence',
+			2 => 'spell_deathknight_unholypresence',
+			//Druid
+			3 => 'spell_nature_starfall',
+			4 => 'ability_druid_catform',
+			5 => 'ability_racial_bearform',
+			6 => 'spell_nature_healingtouch',
+			//Hunter
+			7 => 'ability_hunter_bestialdiscipline',
+			8 => 'ability_hunter_focusedaim',
+			9 => 'ability_hunter_camouflage',
+			//Mage
+			10 => 'spell_holy_magicalsentry',
+			11 => 'spell_fire_firebolt02',
+			12 => 'spell_frost_frostbolt02',
+			//Paladin
+			13 => 'spell_holy_holybolt',
+			14 => 'ability_paladin_shieldofthetemplar',
+			15 => 'spell_holy_auraoflight',
+			//Priest
+			16 => 'spell_holy_powerwordshield',
+			17 => 'spell_holy_guardianspirit',
+			18 => 'spell_shadow_shadowwordpain',
+			//Rogue
+			19 => 'ability_rogue_eviscerate',
+			20 => 'ability_backstab',
+			21 => 'ability_stealth',
+			//Shaman
+			22 => 'spell_nature_lightning',
+			23 => 'spell_shaman_improvedstormstrike',
+			24 => 'spell_nature_magicimmunity',
+			//Warlock
+			25 => 'spell_shadow_deathcoil',
+			26 => 'spell_shadow_metamorphosis',
+			27 => 'spell_shadow_rainoffire',
+			//Warrior
+			28 => 'ability_warrior_savageblow',
+			29 => 'ability_warrior_innerrage',
+			30 => 'ability_warrior_defensivestance',
+			//Monk
+			31 => 'spell_monk_brewmaster_spec',
+			32 => 'spell_monk_mistweaver_spec',
+			33 => 'spell_monk_windwalker_spec',
 		),
 	);
 
@@ -148,15 +155,23 @@ class bnet_armory{
 		$this->_config['serverloc']	= ($serverloc != '') ? $serverloc : 'en_EN';
 		$this->_config['locale']	= $locale;
 		$this->setApiUrl($this->_config['serverloc']);
-		$this->_config['apiKey']	= (defined('GAME_IMPORTER_APIKEY')) ? GAME_IMPORTER_APIKEY : registry::register('game')->get_import_apikey();
+		$this->_config['apiKey']	= (defined('GAME_IMPORTER_APIKEY')) ? GAME_IMPORTER_APIKEY : ((class_exists('registry')) ? registry::register('game')->get_import_apikey() : '');
 	}
 	
 	public function __get($name) {
 		if(class_exists('registry')) {
 			if($name == 'pfh') return registry::register('file_handler');
 			if($name == 'puf') return registry::register('urlfetcher');
+			if($name == 'pdl') return registry::register('plus_debug_logger');
 		}
 		return null;
+	}
+	
+	private function _debug($strValue){
+		if(class_exists('plus_debug_logger')){
+			if(!$this->pdl->type_known('bnet_armory')) $this->pdl->register_type('bnet_armory', null, null, array(2,3,4));
+			$this->pdl->log('bnet_armory', $strValue);
+		}
 	}
 
 	/**
@@ -178,6 +193,9 @@ class bnet_armory{
 		}
 		if(isset($setting['caching'])){
 			$this->_config['caching']	= $setting['caching'];
+		}
+		if(isset($setting['image-caching'])){
+			$this->_config['image-caching']	= $setting['image-caching'];
 		}
 		if(isset($setting['apiKey'])){
 			$this->_config['apiKey']	= $setting['apiKey'];
@@ -233,7 +251,7 @@ class bnet_armory{
 			case 'guild-achievements':
 				return $linkprfx.sprintf('guild/%s/%s/achievement', $this->ConvertInput($server, true, true), $this->ConvertInput($guild));break;
 			case 'askmrrobot':
-			return sprintf('http://www.askmrrobot.com/wow/gear/%s/%s/%s', $this->_config['serverloc'], $this->ConvertInput($server, true, true), $this->ConvertInput($user));break;
+			return sprintf('http://www.askmrrobot.com/wow/player/%s/%s/%s', $this->_config['serverloc'], $this->ConvertInput($server, true, true), $this->ConvertInput($user));break;
 		}
 	}
 
@@ -277,6 +295,7 @@ class bnet_armory{
 		$usedparams = array_merge($basicparam, $params);
 		$force		= (count($params) > 1 && $force == false) ? true : $force;
 		$wowurl		= $this->_config['apiUrl'].sprintf('wow/character/%s/%s?locale=%s&apikey=%s&fields='.implode(',', $usedparams), $realm, $user, $this->_config['locale'], $this->_config['apiKey']);
+		$this->_debug('Character: '.$wowurl);
 		$json		= $this->get_CachedData('chardata_'.$user.$realm, $force);		
 		if(!$json && ($this->chardataUpdates < $this->_config['maxChardataUpdates'])){
 			$json	= $this->read_url($wowurl);
@@ -321,7 +340,7 @@ class bnet_armory{
 	}
 
 	public function characterIconSimple($race, $gender='0'){
-		return $this->_config['staticimageURL'].sprintf('2d/profilemain/race/%s-%s.jpg', $race, $gender);
+		return $this->cacheIcon($this->_config['staticimageURL'].sprintf('2d/profilemain/race/%s-%s.jpg', $race, $gender), false);
 	}
 
 	/**
@@ -348,7 +367,21 @@ class bnet_armory{
 	}
 
 	public function talentIcon($name){
-		return $this->_config['staticiconURL'].'36/'.$name.'.jpg';
+		return $this->cacheIcon($this->_config['staticiconURL'].'36/'.$name.'.jpg');
+	}
+
+	public function cacheIcon($url, $withsize = true, $forceUpdateAll = false){
+		if(!$this->_config['image-caching']) { return $url; }
+		$path			= explode('/', $url);
+		$image_name		= (($withsize) ? $path[count($path)-2].'_' : '').$path[count($path)-1];
+		$img_icon		= $this->get_CachedData($image_name, false, true, false,true);
+		
+		// download the icon
+		if(!$img_icon || $forceUpdateAll){
+			$this->set_CachedData($this->read_url($url), $image_name, true);
+			$img_icon	= $this->get_CachedData($image_name, false, true, false,true);
+		}
+		return $img_icon;
 	}
 
 	public function selectedTitle($titles, $cleantitle=false){
@@ -381,6 +414,7 @@ class bnet_armory{
 		$realm	= $this->ConvertInput($this->cleanServername($realm));
 		$guild	= $this->ConvertInput($guild);
 		$wowurl	= $this->_config['apiUrl'].sprintf('wow/guild/%s/%s?locale=%s&fields=members,achievements,news,challenge&apikey=%s', $realm, $guild, $this->_config['locale'], $this->_config['apiKey']);
+		$this->_debug('Guild: '.$wowurl);
 		if(!$json	= $this->get_CachedData('guilddata_'.$guild.$realm, $force)){
 			$json	= $this->read_url($wowurl);
 			$this->set_CachedData($json, 'guilddata_'.$guild.$realm);
@@ -412,7 +446,7 @@ class bnet_armory{
 			// set the URL of the required image parts
 			$img_emblem		= $this->_config['apiTabardRenderUrl'].sprintf('emblem_%02s', $emblemdata['icon']) .'.png';
 			$img_border		= $this->_config['apiTabardRenderUrl']."border_".(($emblemdata['border'] == '-1') ? sprintf("%02s", $emblemdata['border']) : '00').".png";
-			echo $img_ring		= $this->_config['apiTabardRenderUrl'].sprintf('ring-%s', (($faction == 0) ? 'alliance' : 'horde')) .'.png';
+			$img_ring		= $this->_config['apiTabardRenderUrl'].sprintf('ring-%s', (($faction == 0) ? 'alliance' : 'horde')) .'.png';
 			$img_background	= $this->_config['apiTabardRenderUrl'].'bg_00.png';
 			$img_shadow		= $this->_config['apiTabardRenderUrl'].'shadow_00.png';
 			$img_overlay	= $this->_config['apiTabardRenderUrl'].'overlay_00.png';
@@ -524,6 +558,7 @@ class bnet_armory{
 	*/
 	public function realm($realms, $force=false){
 		$wowurl = $this->_config['apiUrl'].sprintf('wow/realm/status?locale=%s&realms=%s&apikey=%s', $this->_config['locale'], $realms = ((is_array($realms)) ? implode(",",$realms) : ''), $this->_config['apiKey']);
+		$this->_debug('Realm: '.$wowurl);
 		if(!$json	= $this->get_CachedData('realmdata_'.str_replace(",", "", $realms), $force)){
 			$json	= $this->read_url($wowurl);
 			$this->set_CachedData($json, 'realmdata_'.str_replace(",", "", $realms));
@@ -549,6 +584,7 @@ class bnet_armory{
 			default: $teamsize = '2v2';
 		}
 		$wowurl = $this->_config['apiUrl'].sprintf('wow/leaderboard/%s?locale=%s&apikey=%s', $this->ConvertInput($realm), $teamsize, $this->ConvertInput($teamname), $this->_config['locale'], $this->_config['apiKey']);
+		$this->_debug('PVPTeam: '.$wowurl);
 		if(!$json	= $this->get_CachedData('pvpdata_'.$guild.$teamname.$teamsize, $force)){
 			$json	= $this->read_url($wowurl);
 			$this->set_CachedData($json, 'pvpdata_'.$guild.$teamname.$teamsize);
@@ -568,6 +604,7 @@ class bnet_armory{
 	public function item($itemid, $force=false){
 		$tmp_itemid		= explode(':', $itemid);
 		$wowurl = $this->_config['apiUrl'].sprintf('wow/item/%s?locale=%s&apikey=%s', $tmp_itemid[0], $this->_config['locale'], $this->_config['apiKey']);
+		$this->_debug('Item: '.$wowurl);
 		if(!$json		= $this->get_CachedData('itemdata_'.$itemid, $force)){
 			$json		= $this->read_url($wowurl);
 			$metadata	= $this->eqdkpitemid_meta($itemid);
@@ -586,9 +623,11 @@ class bnet_armory{
 		// 3 and 4 are normal, 5 and 6 are heroic
 		$difficulty	= (isset($arrItemData[11])) ? $arrItemData[11] : 0;
 		switch($difficulty){
-			case '0' || '3' || '4': $itemdiff = 'normal';
-			case '5' || '6': $itemdiff = 'heroic';
-			default: $itemdiff = 'normal';
+			case '0' || '1' || '3' || '4' || '9' || '14':	$itemdiff = 'normal';
+			case '2' || '5' || '6' || '11' || '15':			$itemdiff = 'heroic';
+			case '16':										$itemdiff = 'mythic';
+			case '7':										$itemdiff = 'finder';
+			default:										$itemdiff = 'normal';
 		}
 		return array(
 			'difficulty'	=> $itemdiff,
@@ -626,6 +665,7 @@ class bnet_armory{
 	*/
 	public function achievement($achievementid, $force=false){
 		$wowurl = $this->_config['apiUrl'].sprintf('wow/achievement/%s?locale=%s&apikey=%s', $achievementid, $this->_config['locale'], $this->_config['apiKey']);
+		$this->_debug('Achievement: '.$wowurl);
 		if(!$json	= $this->get_CachedData('achievementdata_'.$achievementid, $force)){
 			$json	= $this->read_url($wowurl);
 			$this->set_CachedData($json, 'achievementdata_'.$achievementid);
@@ -645,6 +685,7 @@ class bnet_armory{
 	*/
 	public function quest($questid, $force=false){
 		$wowurl = $this->_config['apiUrl'].sprintf('wow/quest/%s?locale=%s&apikey=%s', $questid, $this->_config['locale'], $this->_config['apiKey']);
+		$this->_debug('Quest: '.$wowurl);
 		if(!$json	= $this->get_CachedData('questdatadata_'.$questid, $force)){
 			$json	= $this->read_url($wowurl);
 			$this->set_CachedData($json, 'questdatadata_'.$questid);
@@ -663,6 +704,7 @@ class bnet_armory{
 	*/
 	public function recipe($recipeid, $force=false){
 		$wowurl = $this->_config['apiUrl'].sprintf('wow/recipe/%s?locale=%s&apikey=%s', $recipeid, $this->_config['locale'], $this->_config['apiKey']);
+		$this->_debug('Recipe: '.$wowurl);
 		if(!$json	= $this->get_CachedData('recipedatadata_'.$recipeid, $force)){
 			$json	= $this->read_url($wowurl);
 			$this->set_CachedData($json, 'recipedatadata_'.$recipeid);
@@ -681,6 +723,7 @@ class bnet_armory{
 	*/
 	public function spell($spellid, $force=false){
 		$wowurl = $this->_config['apiUrl'].sprintf('wow/spell/%s?locale=%s&apikey=%s', $spellid, $this->_config['locale'], $this->_config['apiKey']);
+		$this->_debug('Spell: '.$wowurl);
 		if(!$json	= $this->get_CachedData('spelldatadata_'.$spellid, $force)){
 			$json	= $this->read_url($wowurl);
 			$this->set_CachedData($json, 'spelldatadata_'.$spellid);
@@ -699,6 +742,7 @@ class bnet_armory{
 	*/
 	public function challenge($realm, $force=false){
 		$wowurl = $this->_config['apiUrl'].sprintf('wow/challenge/%s?locale=%s&apikey=%s', $this->ConvertInput($realm), $this->_config['locale'], $this->_config['apiKey']);
+		$this->_debug('Challenge: '.$wowurl);
 		if(!$json	= $this->get_CachedData('challengedatadata_'.$realm, $force)){
 			$json	= $this->read_url($wowurl);
 			$this->set_CachedData($json, 'challengedatadata_'.$realm);
@@ -717,6 +761,7 @@ class bnet_armory{
 	*/
 	public function battlepet($abilityid, $force=false){
 		$wowurl = $this->_config['apiUrl'].sprintf('wow/battlePet/ability/%s?locale=%s&apikey=%s', $abilityid, $this->_config['locale'], $this->_config['apiKey']);
+		$this->_debug('Battlepet: '.$wowurl);
 		if(!$json	= $this->get_CachedData('battlepetdatadata_'.$abilityid, $force)){
 			$json	= $this->read_url($wowurl);
 			$this->set_CachedData($json, 'battlepetdatadata_'.$abilityid);
@@ -735,6 +780,7 @@ class bnet_armory{
 	*/
 	public function auction($realm, $force=false){
 		$wowurl = $this->_config['apiUrl'].sprintf('api/wow/auction/data/%s?locale=%s&apikey=%s', $this->ConvertInput($realm), $this->_config['locale'], $this->_config['apiKey']);
+		$this->_debug('Auction: '.$wowurl);
 		if(!$json	= $this->get_CachedData('auctiondatadata_'.$realm, $force)){
 			$json	= $this->read_url($wowurl);
 			$this->set_CachedData($json, 'auctiondatadata_'.$realm);
@@ -747,6 +793,7 @@ class bnet_armory{
 	// DATA RESOURCES
 	public function getdata($type='character', $sub_type='achievements', $force=false){
 		$wowurl	= $this->_config['apiUrl'].sprintf('wow/data/'.$type.'/'.$sub_type.'?locale=%s&apikey=%s', $this->_config['locale'], $this->_config['apiKey']);
+		$this->_debug('Data Resource: '.$wowurl);
 		if(!$json	= $this->get_CachedData('data_'.$type.'_'.$sub_type, $force)){
 			$this->downloadORwait();
 			$json	= $this->read_url($wowurl);
