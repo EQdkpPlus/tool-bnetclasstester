@@ -34,18 +34,23 @@ $tmp_servername	= (@$_GET['realm'])		? urldecode(stripslashes($_GET['realm']))	:
 $tmp_force		= (@$_GET['force'])		? true										: false;
 $tmp_loc		= (@$_GET['loc'])		? urldecode($_GET['loc'])					: $default_loc;
 $tmp_language	= (@$_GET['lang'])		? urldecode($_GET['lang'])					: $default_language;
+$api_version	= (@$_GET['apiversion'])? urldecode($_GET['apiversion'])			: $api_version;
 
 $output = '';
 
 // init the required plus functions
 $eqdkp_root_path = '';
 
-require_once('classes/plus/plus_url_fetcher.class.php');
-require_once('classes/plus/core.functions.php');
+require_once('classes/plus_url_fetcher.class.php');
+require_once('classes/core.functions.php');
 $puf	= new urlFetcher();
 
 // load the armory class
-include_once('objects/bnet_armory.class.php');
+if($api_version < '2'){
+	include_once('objects/bnet_armory_old.class.php');
+}else{
+	include_once('objects/bnet_armory.class.php');
+}
 
 $armory		= new bnet_armory($tmp_loc, $tmp_language, $api_key);
 $servernames = explode(",", $tmp_servername);
