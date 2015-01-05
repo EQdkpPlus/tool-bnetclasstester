@@ -1,35 +1,32 @@
 <?php
- /*
- * Project:		EQdkp-Plus
- * License:		Creative Commons - Attribution-Noncommercial-Share Alike 3.0 Unported
- * Link:		http://creativecommons.org/licenses/by-nc-sa/3.0/
- * -----------------------------------------------------------------------
- * Began:		2010
- * Date:		$Date$
- * -----------------------------------------------------------------------
- * @author		$Author$
- * @copyright	2006-2011 EQdkp-Plus Developer Team
- * @link		http://eqdkp-plus.com
- * @package		eqdkp-plus
- * @version		$Rev$
- * 
- * $Id$
+/*	Project:	EQdkp-Plus
+ *	Package:	Battle.net class tester
+ *	Link:		http://eqdkp-plus.eu
+ *
+ *	Copyright (C) 2006-2015 EQdkp-Plus Developer Team
+ *
+ *	This program is free software: you can redistribute it and/or modify
+ *	it under the terms of the GNU Affero General Public License as published
+ *	by the Free Software Foundation, either version 3 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU Affero General Public License for more details.
+ *
+ *	You should have received a copy of the GNU Affero General Public License
+ *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 define('EQDKP_INC', true);
 ini_set( 'display_errors', true );
 error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING);
+require_once('config.php');
 
 if($_GET['info'] == 'true'){
 	phpinfo();die();
 }
-
-// fallback config
-$wow_servername = "Antonidas";
-$wow_guild		= "Die Freien";
-$wow_loc		= "eu";
-$wow_language	= "de_de";
-$min_level		= 20;
 
 $output = '';
 require_once('classes/plus/plus_url_fetcher.class.php');
@@ -37,15 +34,15 @@ require_once('classes/plus/core.functions.php');
 $puf	= new urlFetcher();
 include_once('objects/bnet_armory.class.php');
 
-$tmp_guild		= (@$_GET['guild'])		? urldecode($_GET['guild'])					: 'Die Freien';
-$tmp_servername	= (@$_GET['realm'])		? urldecode(stripslashes($_GET['realm']))	: "Antonidas";
-$tmp_loc		= (@$_GET['loc'])		? urldecode($_GET['loc'])					: 'eu';
-$tmp_language	= (@$_GET['lang'])		? urldecode($_GET['lang'])					: "de_DE";
+$tmp_guild		= (@$_GET['guild'])		? urldecode($_GET['guild'])					: $default_guild;
+$tmp_servername	= (@$_GET['realm'])		? urldecode(stripslashes($_GET['realm']))	: $default_realm;
+$tmp_loc		= (@$_GET['loc'])		? urldecode($_GET['loc'])					: $default_loc;
+$tmp_language	= (@$_GET['lang'])		? urldecode($_GET['lang'])					: $default_language;
 $tmp_force		= (@$_GET['force'])		? true										: false;
 //$min_level		= (@$_GET['level']) 	? urldecode($_GET['level'])					: 20;
 //$cclass			= (@$_GET['class'])		? urldecode($_GET['class'])					: '';
 
-$armory		= new bnet_armory($tmp_loc, $tmp_language);
+$armory		= new bnet_armory($tmp_loc, $tmp_language, $api_key);
 $dataarry 	= $armory->guild($tmp_guild, $tmp_servername, $tmp_force);
 $get_method	= ($puf->get_method()) ? $puf->get_method() : 'Cached';
 
