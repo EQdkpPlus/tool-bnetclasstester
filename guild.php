@@ -43,9 +43,9 @@ $api_version	= (@$_GET['apiversion'])? urldecode($_GET['apiversion'])			: $api_v
 //$cclass			= (@$_GET['class'])		? urldecode($_GET['class'])					: '';
 
 if($api_version < '2'){
-	include_once('objects/bnet_armory_old.class.php');
+	include_once('classes/bnet_armory_old.class.php');
 }else{
-	include_once('objects/bnet_armory.class.php');
+	include_once('classes/bnet_armory.class.php');
 }
 
 $armory		= new bnet_armory($tmp_loc, $tmp_language);
