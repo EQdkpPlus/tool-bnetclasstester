@@ -164,7 +164,7 @@ function d($content="-" ){
 	}
 
 	if (strlen($content) ==0) {
-		$content = "String Lenght=0";
+		$content = "String Length=0";
 	}
 
 	echo "<table border=0>\n";
@@ -268,7 +268,7 @@ function utf8encode($string){
 }
 
 /**
- * Own utf8 decode function 
+ * Own utf8 decode function
  *
  * SHOULD NOT BE USED IN CODE -
  * ONLY FOR SERVER-SERVER COMMUNICATIONS
@@ -616,7 +616,7 @@ function resolve_eqdkp_page($page){
 			case 'styles':
 				$page = $user->lang['managing_styles'];
 			break;
-			
+
 			/***************** Listing *****************/
 			case 'listadj':
 				if ( (empty($matches[1])) || ($matches[1] == 'group') ){
@@ -641,7 +641,7 @@ function resolve_eqdkp_page($page){
 			case 'listraids':
 				$page = $user->lang['listing_raids'];
 			break;
-			
+
 			/***************** Misc *****************/
 			case 'parse_log':
 				$page = $user->lang['parsing_log'];
@@ -652,7 +652,7 @@ function resolve_eqdkp_page($page){
 			case 'summary':
 				$page = $user->lang['viewing_summary'];
 			break;
-                    
+
 			/***************** Viewing *****************/
 			case 'viewevent':
 				$page = $user->lang['viewing_event'] . ': ';
@@ -854,7 +854,7 @@ function unsanitize($input){
  */
 function generate_pagination($url, $items, $per_page, $start, $start_variable='start'){
     global $eqdkp_root_path, $user;
-		
+
     $uri_symbol = ( strpos($url, '?') ) ? '&amp;' : '?';
 		//On what page we are?
 		$recent_page = (int)floor($start / $per_page) + 1;
@@ -883,14 +883,14 @@ function generate_pagination($url, $items, $per_page, $start, $start_variable='s
 						$pagination .= '<a href="'.$url.$uri_symbol.$start_variable.'='.( ($i - 1) * $per_page).'" title="'.$user->lang['page'].' '.$i.'" class="pagination">'.$i.'</a> ';
 					}
 					$pagination .= ' ';
-				}	
-		//Don't show all page-links		
+				}
+		//Don't show all page-links
 		} else {
 			$start_count = min(max(1, $recent_page - 5), $total_pages - 4);
 			$end_count = max(min($total_pages, $recent_page + 5), 4);
-			
+
 			$pagination .= ( $start_count > 1 ) ? ' ... ' : ' ';
-			
+
 			for ( $i = $start_count + 1; $i < $end_count; $i++ ){
 				if ($i == $recent_page){
 					$pagination .= '<span class="pagination_activ">'.$i.'</span> ';
@@ -898,17 +898,17 @@ function generate_pagination($url, $items, $per_page, $start, $start_variable='s
 					$pagination .= '<a href="'.$url.$uri_symbol.$start_variable.'='.( ($i - 1) * $per_page).'" title="'.$user->lang['page'].' '.$i.'" class="pagination">'.$i.'</a> ';
 				}
 			}
-			$pagination .= ($end_count < $total_pages ) ? '  ...  ' : ' ';		
+			$pagination .= ($end_count < $total_pages ) ? '  ...  ' : ' ';
 		} //close else
-		
-		
+
+
 		//Last Page
 		if ($recent_page == $total_pages){
 			$pagination .= '<span class="pagination_activ">'.$recent_page.'</span>';
 		} else {
 			$pagination .= '<a href="'.$url.$uri_symbol.$start_variable.'='.(($total_pages - 1) * $per_page) . '" class="pagination" title="'.$user->lang['page'].' '.$total_pages.'">'.$total_pages.'</a>&nbsp;&nbsp;<a href="'.$base. $uri_symbol .$start_variable.'='.($recent_page * $per_page).'" title="'.$user->lang['next_page'].'"><img src="'.$eqdkp_root_path.'images/arrows/right_arrow.png" border="0"></a>';
 		}
-	
+
 	$pagination .= '</div>';
 	return $pagination;
 }
