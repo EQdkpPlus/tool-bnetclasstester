@@ -25,13 +25,12 @@ if ( !defined('EQDKP_INC') ){
 
 class bnet_armory {
 
-	private $version		= '6.0.2';
-	private $build			= '$Rev$';
+	private $version		= '7.0.0';
 	private $chariconUpdates = 0;
 	private $chardataUpdates = 0;
 	private $ratepersecond	= 100;
 	const apiurl			= 'https://{region}.api.battle.net/';
-	const staticrenderurl	= 'http://{region}.battle.net/static-render/';
+	const staticrenderurl	= 'http://{region}.battle.net/static-render/';		// http://us.battle.net/forums/en/bnet/topic/20748205383
 	const staticimages		= 'http://{region}.battle.net/wow/static/images/';
 	const staticicons		= 'http://{region}.media.blizzard.com/wow/icons/';
 	const tabardrenderurl	= 'http://{region}.battle.net/wow/static/images/guild/tabards/';
@@ -63,7 +62,8 @@ class bnet_armory {
 			8		=> '4',		// mage
 			9		=> '9',		// warlock
 			11		=> '2',		// druid
-			10		=> '11',	//monk
+			10		=> '11',		//monk
+			12		=> '12',		// demon hunter
 		),
 		'races' => array(
 			'1'		=> 2,		// human
@@ -113,8 +113,8 @@ class bnet_armory {
 			17 => 'spell_holy_guardianspirit',
 			18 => 'spell_shadow_shadowwordpain',
 			//Rogue
-			19 => 'ability_rogue_eviscerate',
-			20 => 'ability_backstab',
+			19 => 'ability_rogue_deadlybrew',
+			20 => 'inv_sword_30',
 			21 => 'ability_stealth',
 			//Shaman
 			22 => 'spell_nature_lightning',
@@ -132,6 +132,9 @@ class bnet_armory {
 			31 => 'spell_monk_brewmaster_spec',
 			32 => 'spell_monk_mistweaver_spec',
 			33 => 'spell_monk_windwalker_spec',
+			//Demonhunter
+			34 => 'ability_demonhunter_specdps',
+			35 => 'ability_demonhunter_spectank',
 		),
 	);
 
@@ -826,14 +829,57 @@ class bnet_armory {
 	}
 
 	/**
+	* The boss API provides information about bosses. A 'boss' in this context should be considered a boss encounter, which may include more than one NPC.
+	*
+	* @param $bossid	Boss ID, if non alle are listed
+	* @param $force		Force the cache to update?
+	* @return bol
+	*/
+	public function boss($bossid=0, $force=false){
+		if($bossid > 0){
+			$wowurl = $this->_config['apiUrl'].sprintf('wow/boss/%s?locale=%s&apikey=%s', $this->ConvertInput($bossid), $this->_config['locale'], $this->_config['apiKey']);
+		}else {
+			$wowurl = $this->_config['apiUrl'].sprintf('wow/boss/?locale=%s&apikey=%s', $this->_config['locale'], $this->_config['apiKey']);
+			$bossid = 'all';
+		}
+
+		$this->_debug('Boss: '.$wowurl);
+		if(!$json	= $this->get_CachedData('bossdatadata_'.$bossid, $force)){
+			$json	= $this->read_url($wowurl);
+			$this->set_CachedData($json, 'bossdatadata_'.$bossid);
+		}
+		$bossdata	= json_decode($json, true);
+		$errorchk	= $this->CheckIfError($bossdata);
+		return (!$errorchk) ? $bossdata : $errorchk;
+	}
+
+	/**
+	* A list of all supported mounts.
+	*
+	* @param $force		Force the cache to update?
+	* @return bol
+	*/
+	public function mount($force=false){
+		$wowurl = $this->_config['apiUrl'].sprintf('wow/mount/?locale=%s&apikey=%s', $this->_config['locale'], $this->_config['apiKey']);
+		$this->_debug('Mount: '.$wowurl);
+		if(!$json	= $this->get_CachedData('mountdatadata', $force)){
+			$json	= $this->read_url($wowurl);
+			$this->set_CachedData($json, 'mountdatadata');
+		}
+		$mountdata	= json_decode($json, true);
+		$errorchk	= $this->CheckIfError($mountdata);
+		return (!$errorchk) ? $mountdata : $errorchk;
+	}
+
+	/**
 	* This API resource provides a per-realm list of recently generated auction house data dumps.
 	*
-	* @param $abilityid	Ability ID
+	* @param $realm	Realmname
 	* @param $force		Force the cache to update?
 	* @return bol
 	*/
 	public function auction($realm, $force=false){
-		$wowurl = $this->_config['apiUrl'].sprintf('api/wow/auction/data/%s?locale=%s&apikey=%s', $this->ConvertInput($realm), $this->_config['locale'], $this->_config['apiKey']);
+		$wowurl = $this->_config['apiUrl'].sprintf('wow/auction/data/%s?locale=%s&apikey=%s', $this->ConvertInput($realm), $this->_config['locale'], $this->_config['apiKey']);
 		$this->_debug('Auction: '.$wowurl);
 		if(!$json	= $this->get_CachedData('auctiondatadata_'.$realm, $force)){
 			$json	= $this->read_url($wowurl);
