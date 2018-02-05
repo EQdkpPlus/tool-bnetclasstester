@@ -23,9 +23,9 @@ if ( !defined('EQDKP_INC') ){
 	header('HTTP/1.0 404 Not Found');exit;
 }
 
-class bnet_armory {
+class bnet_armory extends gen_class {
 
-	private $version		= '7.0.0';
+	private $version		= '7.2.0';
 	private $chariconUpdates = 0;
 	private $chardataUpdates = 0;
 	private $ratepersecond	= 100;
@@ -34,6 +34,8 @@ class bnet_armory {
 	const staticimages		= 'http://{region}.battle.net/wow/static/images/';
 	const staticicons		= 'http://{region}.media.blizzard.com/wow/icons/';
 	const tabardrenderurl	= 'http://{region}.battle.net/wow/static/images/guild/tabards/';
+	const charimageurl		= 'https://render-{region}.worldofwarcraft.com/';
+	const profileurlChar		= 'https://worldofwarcraft.com/{locale}/';
 
 	private $_config		= array(
 		'serverloc'				=> 'us',
@@ -213,10 +215,14 @@ class bnet_armory {
 		return $this->version.((preg_match('/\d+/', $this->build, $match))? '#'.$match[0] : '');
 	}
 
-	public function apiURL2profileURL($sufix='wow'){
-		$linkprfx	= str_replace('https://', 'http://', $this->_config['apiUrl']);
-		$linkprfx	= str_replace('.api', '', $linkprfx);
-		return $linkprfx.$sufix.'/';
+	public function getProfileULR($type='char'){
+		if($type=='char'){
+			return str_replace('{locale}', $this->_config['locale'], self::profileurlChar);
+		}else{
+			$linkprfx	= str_replace('https://', 'http://', $this->_config['apiUrl']);
+			$linkprfx	= str_replace('.api', '', $linkprfx).$sufix.'/wow/{locale}/';
+			return str_replace('{locale}', substr($this->_config['locale'],0,2), $linkprfx);
+		}
 	}
 
 	/**
@@ -229,32 +235,27 @@ class bnet_armory {
 	* @return string		output
 	*/
 	public function bnlink($user, $server, $mode='char', $guild='', $talents=array()){
-		$linkprfx	= $this->apiURL2profileURL();
 		switch ($mode) {
 			case 'char':
-				return $linkprfx.sprintf('character/%s/%s/simple', $this->ConvertInput($server, true, true), $this->ConvertInput($user));break;
-			case 'talent':
-				return $linkprfx.sprintf('character/%s/%s/simple#talents', $this->ConvertInput($server, true, true), $this->ConvertInput($user));break;
-			case 'statistics':
-				return $linkprfx.sprintf('character/%s/%s/statistic', $this->ConvertInput($server, true, true), $this->ConvertInput($user));break;
-			case 'profession':
-				return $linkprfx.sprintf('character/%s/%s/profession/', $this->ConvertInput($server, true, true), $this->ConvertInput($user));break;
+				return $this->getProfileULR().sprintf('character/%s/%s', $this->ConvertInput($server, true, true), $this->ConvertInput($user));break;
 			case 'reputation':
-				return $linkprfx.sprintf('character/%s/%s/reputation', $this->ConvertInput($server, true, true), $this->ConvertInput($user));break;
+				return $this->getProfileULR().sprintf('character/%s/%s/reputation', $this->ConvertInput($server, true, true), $this->ConvertInput($user));break;
 			case 'pvp':
-				return $linkprfx.sprintf('character/%s/%s/pvp', $this->ConvertInput($server, true, true), $this->ConvertInput($user));break;
+				return $this->getProfileULR().sprintf('character/%s/%s/pvp', $this->ConvertInput($server, true, true), $this->ConvertInput($user));break;
+			case 'pve':
+				return $this->getProfileULR().sprintf('character/%s/%s/pve', $this->ConvertInput($server, true, true), $this->ConvertInput($user));break;
 			case 'achievements':
-				return $linkprfx.sprintf('character/%s/%s/achievement', $this->ConvertInput($server, true, true), $this->ConvertInput($user));break;
-			case 'character-feed':
-				return $linkprfx.sprintf('character/%s/%s/feed', $this->ConvertInput($server, true, true), $this->ConvertInput($user));break;
+				return $this->getProfileULR().sprintf('character/%s/%s/achievements', $this->ConvertInput($server, true, true), $this->ConvertInput($user));break;
+			case 'collections':
+				return $this->getProfileULR().sprintf('character/%s/%s/collections', $this->ConvertInput($server, true, true), $this->ConvertInput($user));break;
 			case 'talent-calculator':
-				return $linkprfx.sprintf('tool/talent-calculator#d%s!%s!%s', $talents['calcSpec'], $talents['calcTalent'], $talents['calcGlyph']);break;
+				return $this->getProfileULR().sprintf('game/talent-calculator#%s/%s/talents=%s', $talents['class'], $talents['type'], $talents['calcTalent']);break;
 			case 'guild':
-				return $linkprfx.sprintf('guild/%s/%s/roster', $this->ConvertInput($server, true, true), $this->ConvertInput($guild));break;
+				return $this->getProfileULR('guild').sprintf('guild/%s/%s/', $this->ConvertInput($server, true, true), $this->ConvertInput($guild));break;
 			case 'guild-achievements':
-				return $linkprfx.sprintf('guild/%s/%s/achievement', $this->ConvertInput($server, true, true), $this->ConvertInput($guild));break;
+				return $this->getProfileULR('guild').sprintf('guild/%s/%s/achievement', $this->ConvertInput($server, true, true), $this->ConvertInput($guild));break;
 			case 'askmrrobot':
-			return sprintf('http://www.askmrrobot.com/wow/player/%s/%s/%s', $this->_config['serverloc'], $this->ConvertInput($server, true, true), $this->ConvertInput($user));break;
+				return sprintf('http://www.askmrrobot.com/wow/gear/%s/%s/%s', $this->_config['serverloc'], $this->ConvertInput($server, true, true), $this->ConvertInput($user));break;
 		}
 	}
 
@@ -265,17 +266,16 @@ class bnet_armory {
 	* @param $server		Name of the WoW Server
 	* @return string		output
 	*/
-	public function a_bnlinks($user, $server, $guild=false){
+	public function a_bnlinks($user, $server, $guild=false, $talents=array()){
 		return array(
 			'profil'				=> $this->bnlink($user, $server, 'char'),
-			'talents'				=> $this->bnlink($user, $server, 'talent'),
-			'profession'			=> $this->bnlink($user, $server, 'profession'),
-			'reputation'			=> $this->bnlink($user, $server, 'reputation'),
 			'pvp'					=> $this->bnlink($user, $server, 'pvp'),
+			'pve'					=> $this->bnlink($user, $server, 'pve'),
+			'reputation'			=> $this->bnlink($user, $server, 'reputation'),
 			'achievements'			=> $this->bnlink($user, $server, 'achievements'),
-			'statistics'			=> $this->bnlink($user, $server, 'statistics'),
-			'character-feed'		=> $this->bnlink($user, $server, 'character-feed'),
+			'collections'			=> $this->bnlink($user, $server, 'collections'),
 			'guild'					=> $this->bnlink($user, $server, 'guild', $guild),
+			'talents'				=> $this->bnlink($user, $server, 'talent-calculator', $guild, $talents),
 
 			// external ones
 			'askmrrobot'			=> $this->bnlink($user, $server, 'askmrrobot'),
@@ -300,7 +300,7 @@ class bnet_armory {
 		$wowurl		= $this->_config['apiUrl'].sprintf('wow/character/%s/%s?locale=%s&apikey=%s&fields='.implode(',', $usedparams), $realm, $user, $this->_config['locale'], $this->_config['apiKey']);
 		$this->_debug('Character: '.$wowurl);
 		$json		= $this->get_CachedData('chardata_'.$user.$realm, $force);
-		if(!$json && ($this->chardataUpdates < $this->_config['maxChardataUpdates'])){
+		if(!$json && ($force || $this->chardataUpdates < $this->_config['maxChardataUpdates'])){
 			$json	= $this->read_url($wowurl);
 			$this->set_CachedData($json, 'chardata_'.$user.$realm);
 			$this->chardataUpdates++;
@@ -320,19 +320,19 @@ class bnet_armory {
 	* @return string
 	*/
 	public function characterIcon($chardata, $forceUpdateAll = false){
-		$cached_img	= str_replace(array('/', '-'), '_', 'image_character_'.$this->_config['serverloc'].'_'.$chardata['thumbnail']);
+		//Default icon for unknown chars
+		if(!$chardata){
+			return $this->cacheIcon('https://eu.battle.net/wow/static/images/2d/avatar/0-0.jpg', false);
+		}
+		
+		$cached_img		= str_replace(array('/', '-'), '_', 'image_characterIcon_'.$this->_config['serverloc'].'_'.$chardata['thumbnail']);
 		$img_charicon	= $this->get_CachedData($cached_img, false, true);
 		$img_charicon_sp= $this->get_CachedData($cached_img, false, true, false, true);
 
 		if(!$img_charicon && ($forceUpdateAll || ($this->chariconUpdates < $this->_config['maxChariconUpdates']))){
-			$this->set_CachedData($this->read_url($this->_config['apiRenderUrl'].sprintf('%s/%s', $this->_config['serverloc'], $chardata['thumbnail'])), $cached_img, true);
+			$this->set_CachedData($this->read_url($this->_config['charImageURL'].'character/'.$chardata['thumbnail']), $cached_img, true);
 			$img_charicon	= $this->get_CachedData($cached_img, false, true);
 			$img_charicon_sp= $this->get_CachedData($cached_img, false, true, false, true);
-			// this is due to an api bug and may be removed some day, thumbs are always set and could be 404!
-			if(filesize($img_charicon) < 400){
-				$linkprfx	= $this->apiURL2profileURL('wow/static/images/2d/avatar/');
-				$this->set_CachedData($this->read_url($linkprfx.sprintf('%s-%s.jpg', $chardata['race'], $chardata['gender'])), $cached_img, true);
-			}
 			$this->chariconUpdates++;
 		}
 
@@ -340,10 +340,12 @@ class bnet_armory {
 			//Try to get old data
 			$img_charicon	= $this->get_CachedData($cached_img, false, true, true);
 			$img_charicon_sp= $this->get_CachedData($cached_img, false, true, true, true);
-			if(filesize($img_charicon) < 400){
-				$img_charicon = $img_charicon_sp = "";
-			}
 		}
+		
+		if(filesize($img_charicon) < 400){
+			$img_charicon = $img_charicon_sp = "";
+		}
+
 		return $img_charicon_sp;
 	}
 
@@ -360,15 +362,15 @@ class bnet_armory {
 	*/
 	public function characterImage($chardata, $type='big', $forceUpdateAll = false){
 		switch($type){
-			case 'big':		$dtype_ending = 'profilemain'; break;
+			case 'big':		$dtype_ending = 'main'; break;
 			case 'inset':	$dtype_ending = 'inset'; break;
 			default: $dtype_ending = 'profilemain';
 		}
 		$imgfile = str_replace('avatar.jpg', $dtype_ending.'.jpg', $chardata['thumbnail']);
-		$cached_img	= str_replace(array('/', '-'), '_', 'image_big_character_'.$this->_config['serverloc'].'_'.$imgfile);
+		$cached_img	= str_replace(array('/', '-'), '_', 'image_characterImage_'.$this->_config['serverloc'].'_'.$imgfile);
 		$img_charicon	= $this->get_CachedData($cached_img, false, true, false, true);
 		if(!$img_charicon || $forceUpdateAll){
-			$this->set_CachedData($this->read_url($this->_config['apiRenderUrl'].sprintf('%s/%s', $this->_config['serverloc'], $imgfile)), $cached_img, true);
+			$this->set_CachedData(   $this->read_url($this->_config['charImageURL'].'character/'.$imgfile), $cached_img, true);
 			$img_charicon	= $this->get_CachedData($cached_img, false, true, false,true);
 		}
 
@@ -426,6 +428,15 @@ class bnet_armory {
 		$this->_debug('Guild: '.$wowurl);
 		if(!$json	= $this->get_CachedData('guilddata_'.$guild.$realm, $force)){
 			$json	= $this->read_url($wowurl);
+
+			// this is the fallback for a battle.net issue, where if the news are empty the whole
+			// json is invalid
+			if(!$this->has_json_data($json)){
+				$wowurl	= $this->_config['apiUrl'].sprintf('wow/guild/%s/%s?locale=%s&fields=members,achievements,challenge&apikey=%s', $realm, $guild, $this->_config['locale'], $this->_config['apiKey']);
+				$json	= $this->read_url($wowurl);
+			}
+			// End of fix
+
 			$this->set_CachedData($json, 'guilddata_'.$guild.$realm);
 		}
 		//get old data
@@ -617,13 +628,16 @@ class bnet_armory {
 	public function item($itemid, $force=false){
 		$tmp_itemid		= explode(':', $itemid);
 		$wowurl = $this->_config['apiUrl'].sprintf('wow/item/%s?locale=%s&apikey=%s', $tmp_itemid[0], $this->_config['locale'], $this->_config['apiKey']);
+
 		$this->_debug('Item: '.$wowurl);
 		if(!$json		= $this->get_CachedData('itemdata_'.$itemid, $force)){
 			$json		= $this->read_url($wowurl);
 			$metadata	= $this->eqdkpitemid_meta($itemid);
 			$json		= $this->item_context($json, $metadata);
+			if(is_array($json)) $json = json_encode($json);
 			$this->set_CachedData($json, 'itemdata_'.$itemid);
 		}
+
 		$itemdata	= json_decode($json, true);
 		$errorchk	= $this->CheckIfError($itemdata);
 		return (!$errorchk) ? $itemdata: $errorchk;
@@ -639,13 +653,11 @@ class bnet_armory {
 			default:				$item_difficulty = '1'; break;
 		}
 
-		//itemID:enchant:gem1:gem2:gem3:gem4:suffixID:uniqueID:level:upgradeId:instanceDifficultyID:numBonusIDs:bonusID1:bonusID2...
-		return $itemid.':0:0:0:0:0:0:0:'.$itemlevel.':0:'.$item_difficulty.':'.count($bonuslist).':'.implode(':',$bonuslist);
+		//itemID:enchantID:gemID1:gemID2:gemID3:gemID4:suffixID:uniqueID:linkLevel:specializationID:upgradeTypeID:instanceDifficultyID:numBonusIDs[:bonusID1:bonusID2:...]
+		return $itemid.':0:0:0:0:0:0:0:'.$itemlevel.':0:0:'.$item_difficulty.':'.count($bonuslist).':'.implode(':',$bonuslist);
 	}
 
 	public function eqdkpitemid_meta($item_id){
-		//112417:0:0:0:0:0:0:0:lvl90:upg 491:dif 5:2:448:449
-		//itemID:enchant:gem1:gem2:gem3:gem4:suffixID:uniqueID:level:upgradeId:instanceDifficultyID:11numBonusIDs:bonusID1:bonusID2...
 		//itemID:enchant:gem1:gem2:gem3:gem4:suffixID:uniqueID:level:specializationID:upgradeType:instanceDifficultyID:numBonusIDs:bonusID1:bonusID2...:upgradeId
 		$arrItemData = explode(':', $item_id);
 		if(!is_array($arrItemData) || (is_array($arrItemData) && count($arrItemData)<5)) { return false; }
@@ -704,6 +716,9 @@ class bnet_armory {
 		if(isset($availContexts) && is_array($availContexts) && count($availContexts) > 0 && isset($contextname)){
 
 			$wowurl		= $this->_config['apiUrl'].sprintf('wow/item/%s/%s?locale=%s&apikey=%s%s', $itemid, $contextname, $this->_config['locale'], $this->_config['apiKey'],$bonuslist);
+			return $this->read_url($wowurl);
+		} elseif($bonuslist != ""){
+			$wowurl		= $this->_config['apiUrl'].sprintf('wow/item/%s?locale=%s&apikey=%s%s', $itemid, $this->_config['locale'], $this->_config['apiKey'],$bonuslist);
 			return $this->read_url($wowurl);
 		}
 		return $itemdata;
@@ -909,7 +924,7 @@ class bnet_armory {
 		// one second = 1000000 ms. As the limit is 10/s, we have to wait 100000 = 0.1s
 		list($int,$dec)=explode('.', $this->get_lastdownload());
 		$rate 		= 1000000/$this->ratepersecond;
-		$time2wait	= $rate-$dec;
+		$time2wait	= $rate-((int)$dec);
 		if($time2wait > 0){
 			usleep($time2wait);
 		}
@@ -942,7 +957,7 @@ class bnet_armory {
 
 			if (isset($arrAchievs['categories'])){
 				foreach ($arrAchievs['categories'] as $arrCatAchievs2){
-					$intNewCatID = $intCatID . ':'. $arrCatAchievs2['id'];
+					$intNewCatID = $intCatID;
 					foreach ($arrCatAchievs2['achievements'] as $arrCatAchievs3){
 						if ((int)$arrCatAchievs3['id'] == $intAchievID) return $intNewCatID;
 					}
@@ -950,6 +965,39 @@ class bnet_armory {
 			}
 		}
 	}
+	
+	/**
+	 * Mapping from integer AchievementCategoryID to String
+	 * 
+	 * PvP: 95 -> player-vs-player
+	 * 
+	 * @param int $intCategoryID
+	 * @return string
+	 */
+	function achievementIDMapping($intCategoryID){
+		$arrMapping = array(
+			92 => 'general',
+			96 => 'quests',
+			97 => 'exploration',
+			95 => 'player-vs-player',
+			168 => 'dungeons-raids',
+			169 => 'professions',
+			201 => 'reputation',
+			155 => 'world-events',
+			15117 => 'pet-battles',
+			15246 => 'collections',
+			15275 => 'class-hall',
+			15237 => 'draenor-garrison',
+			15165 => 'scenarios',
+			15234 => 'legacy',
+			81 => 'feats-of-strength',
+		);
+		
+		if(isset($arrMapping[$intCategoryID])) return $arrMapping[$intCategoryID];
+		
+		return "";
+	}
+	
 
 	/**
 	* Check if the JSON is an error result
@@ -1063,7 +1111,7 @@ class bnet_armory {
 	* @return --
 	*/
 	protected function clean_name($name){
-		return preg_replace('/[^a-zA-Z0-9_ \.]/s', '_', $name);
+		return preg_replace('/[^a-zA-Z0-9_ \.\-]/s', '_', $name);
 	}
 
 	/**
@@ -1100,6 +1148,7 @@ class bnet_armory {
 		$this->_config['staticimageURL']		= str_replace('{region}', $serverloc, self::staticimages);
 		$this->_config['apiTabardRenderUrl']	= str_replace('{region}', $serverloc, self::tabardrenderurl);
 		$this->_config['staticiconURL']			= str_replace('{region}', $serverloc, self::staticicons);
+		$this->_config['charImageURL']			= str_replace('{region}', $serverloc, self::charimageurl);
 	}
 
 	/**
@@ -1124,6 +1173,11 @@ class bnet_armory {
 	*/
 	public function CheckError(){
 		return ($this->error) ? $this->error : false;
+	}
+
+	private function has_json_data($string) {
+		$array = json_decode($string, true);
+		return !empty($string) && is_string($string) && is_array($array) && !empty($array) && json_last_error() == 0;
 	}
 
 	/**
