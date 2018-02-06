@@ -50,7 +50,7 @@ class urlfetcher {
 			}
 		}
 		$blnLogToFile = (defined('DEBUG') && DEBUG > 2) ? true : false;
-		if(!$this->pdl->type_known('urlfetcher')) $this->pdl->register_type('urlfetcher', null, null, array(2,3,4), $blnLogToFile);
+		if(is_object($pdl) && !$this->pdl->type_known('urlfetcher')) $this->pdl->register_type('urlfetcher', null, null, array(2,3,4), $blnLogToFile);
 	}
 
 	/**
@@ -64,7 +64,8 @@ class urlfetcher {
 		$this->method = ($this->method) ? $this->method : 'fopen';
 		if (!$conn_timeout) $conn_timeout = $this->conn_timeout;
 		if (!$timeout) $timeout = $this->timeout;
-		$this->pdl->log('urlfetcher', 'fetch url: '.$geturl.' method: '.$this->method);
+		
+		if(is_object($pdl)) { $this->pdl->log('urlfetcher', 'fetch url: '.$geturl.' method: '.$this->method); }
 		return $this->{'get_'.$this->method}($geturl, $header, $conn_timeout, $timeout);
 	}
 	
@@ -111,11 +112,13 @@ class urlfetcher {
 			
 			$arrCurlInfo = curl_getinfo($curl);
 			$curl_error = curl_errno($curl);
-			$this->pdl->log('urlfetcher', 'Curl Error Nr. '.$curl_error);
-			$this->pdl->log('urlfetcher', 'Curl Info: '.print_r($curl_error, true));
-			$this->pdl->log('urlfetcher', 'Response Code: '.$code);
-			$this->pdl->log('urlfetcher', 'Response: '.strlen($getdata).'; First 200 Chars: '.htmlspecialchars(substr($getdata, 0, 200)));
-			
+			if(is_object($pdl)){
+				$this->pdl->log('urlfetcher', 'Curl Error Nr. '.$curl_error);
+				$this->pdl->log('urlfetcher', 'Curl Info: '.print_r($curl_error, true));
+				$this->pdl->log('urlfetcher', 'Response Code: '.$code);
+				$this->pdl->log('urlfetcher', 'Response: '.strlen($getdata).'; First 200 Chars: '.htmlspecialchars(substr($getdata, 0, 200)));
+			}
+
 			curl_close($curl);
 			if(intval($code) >= 400) return false;
 			

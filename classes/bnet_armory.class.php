@@ -23,7 +23,7 @@ if ( !defined('EQDKP_INC') ){
 	header('HTTP/1.0 404 Not Found');exit;
 }
 
-class bnet_armory extends gen_class {
+class bnet_armory {
 
 	private $version		= '7.2.0';
 	private $chariconUpdates = 0;

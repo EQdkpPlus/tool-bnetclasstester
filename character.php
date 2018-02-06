@@ -115,11 +115,11 @@ if(!isset($testdata['status'])){
 				</tr>';
 	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">GET Parameters</td>
-					<td width="580" class="ui-widget-content left">character [corgan], realm [Antonidas], loc [eu], lang [de_DE], force [false]</td>
+					<td width="580" class="ui-widget-content left">character ['.$tmp_charname.'], realm ['.$tmp_servername.'], loc ['.$tmp_loc.'], lang ['.$tmp_language.'], force ['.(($tmp_force) ? 'true' : 'false').']</td>
 				</tr>';
 	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">Image</td>
-					<td width="580" class="ui-widget-content left"><img src="'.$armory-> characterImage($testdata).'" alt="charimage" /></td>
+					<td width="580" class="ui-widget-content left"><img src="'.$armory-> characterImage($testdata).'" alt="charimage" width="100%" /></td>
 				</tr>';
 	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">Name</td>
@@ -147,7 +147,7 @@ if(!isset($testdata['status'])){
 				</tr>';
 	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">Gilde</td>
-					<td width="580" class="ui-widget-content left">'.$testdata['guild']['name'].'</td>
+					<td width="580" class="ui-widget-content left"><a href="'.$armory->bnlink($tmp_charname, $testdata['guild']['realm'], 'guild',$testdata['guild']['name']).'">'.$testdata['guild']['name'].'</a></td>
 				</tr>';
 	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">Last Update</td>
