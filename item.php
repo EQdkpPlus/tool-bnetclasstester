@@ -101,7 +101,7 @@ if(!isset($testdata['status'])){
 				</tr>';
 	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">GET Parameters</td>
-					<td width="580" class="ui-widget-content left">itemid [78478], loc [eu], lang [de_DE], force [false]</td>
+					<td width="580" class="ui-widget-content left">itemid ['.$tmp_itemid.'], loc ['.$tmp_loc.'], lang ['.$tmp_language.'], force ['.(($tmp_force) ? 'true' : 'false').']</td>
 				</tr>';
 	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">Name</td>
