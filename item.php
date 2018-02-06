@@ -115,6 +115,10 @@ if(!isset($testdata['status'])){
 					<td width="220" class="ui-widget-content left">Buy Price</td>
 					<td width="580" class="ui-widget-content left">'.$testdata['buyPrice'].'</td>
 				</tr>';
+	$output .= '<tr>
+					<td width="220" class="ui-widget-content left">Item Level</td>
+					<td width="580" class="ui-widget-content left">'.$testdata['itemLevel'].'</td>
+				</tr>';
 	
 	$output .= '</table></div>';
 }else{
