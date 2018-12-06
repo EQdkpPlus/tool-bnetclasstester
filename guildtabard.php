@@ -3,7 +3,7 @@
  *	Package:	Battle.net class tester
  *	Link:		http://eqdkp-plus.eu
  *
- *	Copyright (C) 2006-2015 EQdkp-Plus Developer Team
+ *	Copyright (C) 2006-2019 EQdkp-Plus Developer Team
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU Affero General Public License as published
@@ -42,16 +42,13 @@ $api_version	= (@$_GET['apiversion'])? urldecode($_GET['apiversion'])			: $api_v
 //$min_level		= (@$_GET['level']) 	? urldecode($_GET['level'])					: 20;
 //$cclass			= (@$_GET['class'])		? urldecode($_GET['class'])					: '';
 
-if($api_version < '2'){
-	include_once('classes/bnet_armory_old.class.php');
-}else{
-	include_once('classes/bnet_armory.class.php');
-}
+include_once('classes/bnet_armory.class.php');
 
 $armory		= new bnet_armory($tmp_loc, $tmp_language);
-if($api_version > '1'){
-	$armory->setSettings(array('apiKey' => $api_key));
-}
+$armory->setSettings(array(
+	'client_id'		=> $client_id,
+	'client_secret'	=> $client_secret
+));
 $dataarry 	= $armory->guild($tmp_guild, $tmp_servername, $tmp_force);
 $get_method	= ($puf->get_method()) ? $puf->get_method() : 'Cached';
 
@@ -83,7 +80,7 @@ $output .= '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http
 				.ui-grid .ui-grid-paging-prev { float: left; width: 16px; height: 16px; }
 				.ui-grid .ui-grid-paging-next { float: right; width: 16px; height: 16px; }
 				.ui-grid .ui-grid-results {  }
-			</style> 
+			</style>
 		</head>
 		<body>
 ';

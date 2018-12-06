@@ -3,7 +3,7 @@
  *	Package:	Battle.net class tester
  *	Link:		http://eqdkp-plus.eu
  *
- *	Copyright (C) 2006-2015 EQdkp-Plus Developer Team
+ *	Copyright (C) 2006-2019 EQdkp-Plus Developer Team
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU Affero General Public License as published
@@ -46,17 +46,13 @@ require_once('classes/core.functions.php');
 $puf	= new urlFetcher();
 
 // load the armory class
-if($api_version < '2'){
-	include_once('classes/bnet_armory_old.class.php');
-}else{
-	include_once('classes/bnet_armory.class.php');
-}
-
+include_once('classes/bnet_armory.class.php');
 
 $armory		= new bnet_armory($tmp_loc, $tmp_language);
-if($api_version > '1'){
-	$armory->setSettings(array('apiKey' => $api_key));
-}
+$armory->setSettings(array(
+	'client_id'		=> $client_id,
+	'client_secret'	=> $client_secret
+));
 $testdata	= $armory->character($tmp_charname, $tmp_servername, $tmp_force);
 $get_method	= ($puf->get_method()) ? $puf->get_method() : 'Cached';
 
@@ -80,7 +76,7 @@ $output .= '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http
 				.ui-grid .ui-grid-paging-prev { float: left; width: 16px; height: 16px; }
 				.ui-grid .ui-grid-paging-next { float: right; width: 16px; height: 16px; }
 				.ui-grid .ui-grid-results {  }
-			</style> 
+			</style>
 		</head>
 		<body>
 ';
@@ -104,7 +100,7 @@ if(!isset($testdata['status'])){
 	$output .= '<div class="ui-grid ui-widget ui-widget-content ui-corner-all">
 				<div class="ui-grid-header ui-widget-header ui-corner-top">Profile information of "'.$tmp_charname.'" on realm "'.$tmp_servername.'"</div>';
 	$output .= '<table class="ui-grid-content ui-widget-content">';
-	
+
 	$output .= '<tr>
 					<th class="ui-state-default" width="220">Field name</th>
 					<th class="ui-state-default" width="580">Data</th>
@@ -115,11 +111,11 @@ if(!isset($testdata['status'])){
 				</tr>';
 	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">GET Parameters</td>
-					<td width="580" class="ui-widget-content left">character [corgan], realm [Antonidas], loc [eu], lang [de_DE], force [false]</td>
+					<td width="580" class="ui-widget-content left">character ['.$tmp_charname.'], realm ['.$tmp_servername.'], loc ['.$tmp_loc.'], lang ['.$tmp_language.'], force ['.(($tmp_force) ? 'true' : 'false').']</td>
 				</tr>';
 	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">Image</td>
-					<td width="580" class="ui-widget-content left"><img src="'.$armory-> characterImage($testdata).'" alt="charimage" /></td>
+					<td width="580" class="ui-widget-content left"><img src="'.$armory-> characterImage($testdata).'" alt="charimage" width="100%" /></td>
 				</tr>';
 	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">Name</td>
@@ -147,7 +143,7 @@ if(!isset($testdata['status'])){
 				</tr>';
 	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">Gilde</td>
-					<td width="580" class="ui-widget-content left">'.$testdata['guild']['name'].'</td>
+					<td width="580" class="ui-widget-content left"><a href="'.$armory->bnlink($tmp_charname, $testdata['guild']['realm'], 'guild',$testdata['guild']['name']).'">'.$testdata['guild']['name'].'</a></td>
 				</tr>';
 	$output .= '<tr>
 					<td width="220" class="ui-widget-content left">Last Update</td>
@@ -157,7 +153,7 @@ if(!isset($testdata['status'])){
 					<td width="220" class="ui-widget-content left">LU Timestamp</td>
 					<td width="580" class="ui-widget-content left">'.$testdata['lastModified'].'</td>
 				</tr>';
-	
+
 	$output .= '</table></div>';
 }else{
 	$output .= '<b>WARNING: </b> '.$testdata['reason'];

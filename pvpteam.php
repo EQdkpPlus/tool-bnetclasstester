@@ -3,7 +3,7 @@
  *	Package:	Battle.net class tester
  *	Link:		http://eqdkp-plus.eu
  *
- *	Copyright (C) 2006-2015 EQdkp-Plus Developer Team
+ *	Copyright (C) 2006-2019 EQdkp-Plus Developer Team
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU Affero General Public License as published
@@ -47,13 +47,13 @@ require_once('classes/core.functions.php');
 $puf	= new urlFetcher();
 
 // load the armory class
-if($api_version < '2'){
-	include_once('classes/bnet_armory_old.class.php');
-}else{
-	include_once('classes/bnet_armory.class.php');
-}
+include_once('classes/bnet_armory.class.php');
 
-$armory		= new bnet_armory($tmp_loc, $tmp_language, $api_key);
+$armory		= new bnet_armory($tmp_loc, $tmp_language);
+$armory->setSettings(array(
+	'client_id'		=> $client_id,
+	'client_secret'	=> $client_secret
+));
 $testdata	= $armory->pvpteam($tmp_servername, $tmp_teamname, $tmp_teamsize, $tmp_force);
 $get_method	= ($puf->get_method()) ? $puf->get_method() : 'Cached';
 
@@ -77,7 +77,7 @@ $output .= '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http
 				.ui-grid .ui-grid-paging-prev { float: left; width: 16px; height: 16px; }
 				.ui-grid .ui-grid-paging-next { float: right; width: 16px; height: 16px; }
 				.ui-grid .ui-grid-results {  }
-			</style> 
+			</style>
 		</head>
 		<body>
 ';
@@ -96,7 +96,7 @@ if(!isset($testdata['status'])){
 	$output .= '<div class="ui-grid ui-widget ui-widget-content ui-corner-all">
 				<div class="ui-grid-header ui-widget-header ui-corner-top">Profile information of "'.$tmp_charname.'" on realm "'.$tmp_servername.'"</div>';
 	$output .= '<table class="ui-grid-content ui-widget-content">';
-	
+
 	$output .= '<tr>
 					<th class="ui-state-default" width="220">Field name</th>
 					<th class="ui-state-default" width="580">Data</th>
